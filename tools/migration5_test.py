@@ -8,11 +8,11 @@ async def main():
   await pg.goto('http://127.0.0.1:8765/legacy.html');await pg.get_by_role('heading',name='Analyses & KPI',exact=True).wait_for()
   await pg.evaluate('''async()=>{await commit(s=>{s.clientSequence=1;s.clients.push({id:'C-LEGACY',number:'CLI-000001',firstName:'Jean',lastName:'Historique',type:'Particulier',company:'',siret:'',phone:'0600000000',email:'test@example.invalid',street:'12 rue Ancienne',postalCode:'01000',city:'Ville',legacyAddress:'',origin:'Physique',notes:'À conserver',createdAt:'2025-01-01T10:00:00Z',updatedAt:'2026-01-01T11:00:00Z'});s.opportunities.push({id:'OP-LEGACY',clientId:'C-LEGACY',title:'Ancien projet',stage:'Accepté',amount:120,owner:'',notes:'Historique',followUp:'',createdAt:'2025-01-02T10:00:00Z',updatedAt:'2026-01-02T10:00:00Z'});s.quotes.push({id:'Q-LEGACY',kind:'quote',number:'DEV-HIST-1',clientId:'C-LEGACY',date:'2026-01-05',status:'Accepté',owner:'',channel:'Physique',createdAt:'2026-01-05T10:00:00Z',updatedAt:'2026-01-06T10:00:00Z'});s.sales.push({id:'B-LEGACY',kind:'sale',number:'FAC-HIST-1',quoteId:'Q-LEGACY',clientId:'C-LEGACY',date:'2026-10-20',status:'Validée',payment:'Payée',delivery:'Livrée',owner:'',channel:'Physique',createdAt:'2026-10-20T10:00:00Z',updatedAt:'2026-10-20T10:00:00Z'});const l={productId:'P-5',ref:'1',name:s.products[0].name,unit:'m²',quantity:10,price:12,vat:20};s.quoteLines.push({...l,id:'QL-LEGACY',documentId:'Q-LEGACY'});s.saleLines.push({...l,id:'BL-LEGACY',documentId:'B-LEGACY'});s.reminders.push({id:'R-LEGACY',clientId:'C-LEGACY',documentId:'Q-LEGACY',date:'2026-10-21',note:'Ancienne relance',done:false,createdAt:'2026-10-20T10:00:00Z'});});}''')
   legacy=await pg.evaluate('JSON.parse(JSON.stringify(state))');assert legacy['schemaVersion']==4
-  await pg.goto('http://127.0.0.1:8765/index.html');await pg.get_by_role('heading',name='Analyses & KPI',exact=True).wait_for();assert await pg.evaluate('state.schemaVersion')==5
+  await pg.goto('http://127.0.0.1:8765/index.html');await pg.get_by_role('heading',name='Analyses & KPI',exact=True).wait_for();assert await pg.evaluate('state.schemaVersion')==6
   assert await pg.evaluate('state.clients[0].id')=='C-LEGACY';assert await pg.evaluate('state.opportunities[0].id')=='OP-LEGACY';assert await pg.evaluate('state.quotes[0].id')=='Q-LEGACY';assert await pg.evaluate('state.sales[0].id')=='B-LEGACY';assert await pg.evaluate('state.quoteLines[0].id')=='QL-LEGACY'
   assert await pg.evaluate('state.opportunities[0].stage')=='À vérifier (historique)';assert await pg.evaluate('state.opportunities[0].legacyStage')=='Accepté'
   assert await pg.evaluate('state.sales[0].legacyPaymentUnverified')==True;assert await pg.evaluate('state.payments.length')==0;assert await pg.evaluate('state.confirmedSales.length')==0;assert await pg.evaluate('state.sales[0].invoiceDate')=='2026-10-20'
-  assert await pg.evaluate('validateImport(state).schemaVersion')==5
+  assert await pg.evaluate('validateImport(state).schemaVersion')==6
   related=await pg.evaluate('state.quotes[0].opportunityId');assert related==await pg.evaluate('state.sales[0].opportunityId');assert related==await pg.evaluate('state.reminders[0].opportunityId')
   for version in [1,2,3,4]:
    fixture=json.loads(json.dumps(legacy));fixture['schemaVersion']=version
@@ -22,7 +22,7 @@ async def main():
      for k in ['number','street','postalCode','city','legacyAddress']:c.pop(k,None)
      c['address']='Adresse ancienne non décomposable';c['owner']='Ancien responsable'
    result=await pg.evaluate('''s=>{const m=validateImport(s);return {version:m.schemaVersion,client:m.clients[0].id,sale:m.sales[0].id,payments:m.payments.length,review:m.sales[0].legacyPaymentUnverified}}''',fixture)
-   assert result=={'version':5,'client':'C-LEGACY','sale':'B-LEGACY','payments':0,'review':True},result
+   assert result=={'version':6,'client':'C-LEGACY','sale':'B-LEGACY','payments':0,'review':True},result
   # Reload must not recreate wrappers or IDs on every opening.
   opids=await pg.evaluate('state.opportunities.map(o=>o.id)');await pg.reload();await pg.get_by_role('heading',name='Analyses & KPI',exact=True).wait_for();assert await pg.evaluate('state.opportunities.map(o=>o.id)')==opids
   # Explicit review confirms the existing sale without duplicating its historical invoice.

@@ -8,7 +8,7 @@ async def main():
   b=await p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);ctx=await b.new_context(viewport={'width':1440,'height':1080});pg=await ctx.new_page();errors=[]
   pg.on('pageerror',lambda e:errors.append(str(e)));pg.on('dialog',lambda d:d.accept())
   await pg.goto('http://127.0.0.1:8765/index.html');await pg.get_by_role('heading',name='Analyses & KPI',exact=True).wait_for();await ctx.set_offline(True)
-  assert await pg.evaluate('state.schemaVersion')==5
+  assert await pg.evaluate('state.schemaVersion')==6
   assert await pg.evaluate("canonicalUnit('PIECE')")=='Pièce'
   assert await pg.evaluate("canonicalUnit('constructor')")=='constructor'
   assert await pg.locator('#nav button').count()==4 and await pg.locator('#adminnav button').count()==2
@@ -31,7 +31,7 @@ async def main():
   await pg.evaluate(f"editOpportunity(null,'{cid}')")
   await pg.locator('[name=title]').fill('Terrasse travertin beige');await pg.locator('[name=description]').fill('Projet de test à deux produits.');await pg.locator('[name=stage]').select_option('Devis à préparer')
   for ref,qty,price in [('1','10','100'),('2','20','50')]:
-   await pg.locator('#productpick').fill(ref);await pg.get_by_role('button',name='Ajouter une ligne',exact=True).click();n=await pg.evaluate('draftLines.length');await pg.locator(f'[aria-label="Quantité ligne {n}"]').fill(qty);await pg.locator(f'[aria-label="PU HT ligne {n}"]').fill(price)
+   await pg.get_by_role('button',name='+ Ajouter une ligne produit',exact=True).click();n=await pg.evaluate('draftLines.length');await pg.locator(f'#line-product-{n-1}').fill(ref);await pg.locator(f'#line-product-{n-1}').press('Enter');await pg.locator(f'[aria-label="Quantité ligne {n}"]').fill(qty);await pg.locator(f'[aria-label="PU HT ligne {n}"]').fill(price)
   assert await pg.evaluate('totals(draftLines).ttc')==2400
   await pg.get_by_role('button',name='Enregistrer',exact=True).click();await pg.wait_for_function('state.opportunities.length===1');oid=await pg.evaluate('state.opportunities[0].id');assert await pg.locator('#dialogtitle').inner_text()=='Dossier commercial'
   await pg.evaluate(f"editOpportunity(null,'{cid}')");await pg.locator('[name=title]').fill('Second projet');await pg.get_by_role('button',name='Enregistrer',exact=True).click();await pg.wait_for_function('state.opportunities.length===2');assert await pg.evaluate('state.opportunities.every(o=>o.clientId===state.clients[0].id)')
@@ -49,7 +49,7 @@ async def main():
   await pg.get_by_role('button',name='Émettre et marquer envoyé',exact=True).click();await pg.wait_for_function("state.quotes[1].status==='Envoyé'");assert await pg.evaluate('state.quotes[0].supersededBy')==qid2;assert await pg.evaluate('JSON.stringify(state.quotes[0].contentSnapshot)')==original
   await pg.get_by_role('button',name='Marquer accepté',exact=True).click();await pg.wait_for_function("state.quotes[1].status==='Accepté'")
   assert await pg.evaluate('state.sales.length')==0
-  await pg.get_by_role('button',name='Programmer une relance',exact=True).click();await pg.locator('[name=note]').fill('Confirmer la livraison');await pg.get_by_role('button',name='Enregistrer',exact=True).click();await pg.wait_for_function("state.reminders.some(r=>r.note==='Confirmer la livraison')")
+  await pg.get_by_role('button',name='+ Programmer une relance',exact=True).click();await pg.locator('[name=note]').fill('Confirmer la livraison');await pg.get_by_role('button',name='Enregistrer',exact=True).click();await pg.wait_for_function("state.reminders.some(r=>r.note==='Confirmer la livraison')")
   await pg.get_by_role('button',name='Confirmer la vente',exact=True).click();await pg.get_by_role('button',name='Confirmer la vente et préparer la facturation',exact=True).click();await pg.wait_for_function('state.confirmedSales.length===1')
   assert await pg.evaluate('state.sales.length')==1
   bid=await pg.evaluate('state.sales[0].id');assert await pg.evaluate('totals(lines(state.sales[0])).ttc')==2400
@@ -97,12 +97,12 @@ async def main():
   await pg.evaluate("closeDialog();go('pipeline');commercialTab='devis';pipelinePage();window.csvs=[];download=(text,name,type)=>{csvs.push({text,name,type})}")
   await pg.locator('[aria-label="Statut du devis"]').select_option('Accepté');assert await pg.locator('table[data-table=quotes] tbody tr').count()==1
   await pg.get_by_role('button',name='Exporter les résultats CSV',exact=True).click();assert await pg.evaluate('csvs.at(-1).text.includes(state.quotes[1].number)')
-  await pg.evaluate("go('sales')");await pg.locator('[aria-label="Statut de paiement"]').select_option('paid');await pg.get_by_role('button',name='Exporter les résultats CSV',exact=True).click();assert '2400' in await pg.evaluate('csvs.at(-1).text')
+  await pg.evaluate("go('sales')");await pg.locator('[data-status-kind=payments] summary').click();await pg.locator('[data-status-index="2"]').check();await pg.get_by_role('button',name='Exporter les résultats CSV',exact=True).click();assert '2400' in await pg.evaluate('csvs.at(-1).text')
   await pg.evaluate("go('settings')")
   # Model validation, demo lifecycle, backup restoration and reload.
-  assert await pg.evaluate('validateImport(state).schemaVersion')==5
+  assert await pg.evaluate('validateImport(state).schemaVersion')==6
   real_sales=await pg.evaluate('state.sales.length');await pg.get_by_role('button',name='Générer des données de démonstration',exact=True).click();await pg.wait_for_function('state.clients.length===41');assert await pg.evaluate('state.opportunities.filter(o=>o.isDemo).length')==50
-  assert await pg.evaluate('state.confirmedSales.filter(c=>c.isDemo).length')>0;assert await pg.evaluate('state.payments.filter(p=>p.isDemo).length')>0;assert await pg.evaluate('validateImport(state).schemaVersion')==5
+  assert await pg.evaluate('state.confirmedSales.filter(c=>c.isDemo).length')>0;assert await pg.evaluate('state.payments.filter(p=>p.isDemo).length')>0;assert await pg.evaluate('validateImport(state).schemaVersion')==6
   await pg.evaluate("go('pipeline');commercialTab='dossiers';kanban=false;pipelinePage()");assert await pg.locator('table[data-table=opportunities] tbody tr').count()==40;await pg.get_by_role('button',name='→',exact=True).click();assert await pg.evaluate('page')==1;await pg.evaluate("go('settings')")
   await pg.get_by_role('button',name='Supprimer les données de démonstration',exact=True).click();await pg.wait_for_function('state.clients.length===1');assert await pg.evaluate('state.sales.length')==real_sales;assert await pg.evaluate('state.payments.length')==4
   await pg.evaluate('window.exports=[];download=(text,name,type)=>exports.push({text,name,type})');await pg.get_by_role('button',name='Exporter JSON',exact=True).click();backup=await pg.evaluate('exports.at(-1).text');await pg.locator('#restore').set_input_files({'name':'backup.json','mimeType':'application/json','buffer':backup.encode()});await pg.wait_for_function("document.getElementById('toast').textContent==='Sauvegarde restaurée.'")

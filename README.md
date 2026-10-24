@@ -1,8 +1,19 @@
-# France Marbre 84 — CRM autonome, version 5
+# France Marbre 84 — CRM autonome, version 6
 
 **Seul `index.html` est nécessaire.** Copier ce fichier et l’ouvrir dans un navigateur moderne autorisant JavaScript, IndexedDB et l’impression. Aucun serveur, compilation, installation, API ou bibliothèque distante n’est requis par l’application. Les fichiers de documentation et les outils de recette sont facultatifs.
 
 Le catalogue initial de 3 283 lignes reste intégré au HTML. Les modifications du catalogue et de l’activité sont stockées dans IndexedDB. Faire régulièrement **Paramètres → Exporter JSON** ; déplacer le HTML ne transfère pas automatiquement les données du navigateur.
+
+## Nouveautés de la version 6
+
+- Tableau de produits partagé entre dossiers et devis : recherche par référence/nom dans chaque ligne, sélection stable, quantités/prix/TVA modifiables, totaux immédiats, suppression et défilement sur petit écran.
+- **Paramètres → Relances automatiques** : activation et délai d’inactivité indépendants du délai après envoi de devis. Contrôles locaux à l’ouverture, pendant l’utilisation et après les opérations ; aucune exécution lorsque le CRM est fermé.
+- **Relances & échanges** : journal commun filtrable, actions prévues/en retard en premier, dates prévue/réalisée distinctes, compte rendu lié à la relance, échanges rapides datés avec canal facultatif. Une réalisation ne crée plus une seconde ligne commerciale.
+- Historiques techniques masqués sans traçabilité ; avec traçabilité, ils restent repliés par défaut.
+- Filtres multisélection des étapes commerciales et états de paiement ; les étapes restent sélectionnées lors du changement tableau/Kanban.
+- Filtre Unité retiré du catalogue ; toutes les données et fonctions liées aux unités sont conservées.
+
+Les relances automatiques sont **désactivées initialement**. Leur désactivation ne supprime pas les alertes déjà enregistrées. Un dossier sans date d’activité connue ou historique à vérifier ne déclenche aucune relance d’inactivité.
 
 ## Nouveau parcours
 
@@ -34,7 +45,7 @@ Les filtres clients utilisent un seul composant de période (création ou derni�
 
 ## Modèle, migrations et KPI
 
-Schéma de contenu **5**, sans changement du nom IndexedDB ni réinitialisation. Les sauvegardes V1 à V4 restent lisibles. Voir [les décisions de modèle et de migration](docs/CONCEPTION-V5.md).
+Schéma de contenu **6**, sans changement du nom IndexedDB ni réinitialisation. Les sauvegardes V1 à V5 restent lisibles. Voir [les décisions V6](docs/CONCEPTION-V6.md) et [le modèle commercial V5](docs/CONCEPTION-V5.md).
 
 Les chiffres distinguent les devis, les ventes confirmées, les factures émises et les règlements effectifs. Les corrections annulées ne sont pas encaissées deux fois. Le taux d’acceptation utilise les devis courants, hors versions remplacées ; le nombre de versions émises est affiché séparément.
 
@@ -53,6 +64,6 @@ L’export HTML avec logo ne contient pas l’activité ni le catalogue modifié
 
 ## Validation et limites
 
-Voir [la recette V5](docs/VALIDATION-V5.md). `python tools/smoke_test.py` exécute les scénarios de développement avec Playwright et un serveur statique local de recette ; aucun de ces outils n’est nécessaire à l’utilisation du CRM.
+Voir [la recette V6](docs/VALIDATION-V6.md). `python tools/smoke_test.py` exécute les scénarios de développement avec Playwright et un serveur statique local de recette ; aucun de ces outils n’est nécessaire à l’utilisation du CRM.
 
 La politique du Chromium cloud bloque `file://` ; l’ouverture directe et le stockage associé restent à vérifier dans le navigateur cible. Les contrôles fonctionnels ont utilisé une origine locale temporaire et des interactions réseau coupé. Le document imprimable ne constitue pas à lui seul une certification de conformité légale ou de facturation électronique. Les mentions applicables doivent être vérifiées avant diffusion.
