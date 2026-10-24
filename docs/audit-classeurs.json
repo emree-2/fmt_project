@@ -1,0 +1,463 @@
+[
+  {
+    "file": "Fiche Client Edition Finale.xltx",
+    "sheets": [
+      {
+        "name": "SUIVI",
+        "maxRow": 341,
+        "maxColumn": 20,
+        "populatedCells": 1403,
+        "formulas": 185,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "D11",
+            "formula": "=COUNTIF(E15:E207,\"?*\")"
+          },
+          {
+            "cell": "E11",
+            "formula": "=COUNTIFS(E15:E207,\"?*\",N15:N207,\"?*\")"
+          },
+          {
+            "cell": "F11",
+            "formula": "=COUNTIF(N15:N507,\"Accepté\")"
+          }
+        ]
+      },
+      {
+        "name": "LAN",
+        "maxRow": 69,
+        "maxColumn": 19,
+        "populatedCells": 270,
+        "formulas": 6,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "D11",
+            "formula": "=COUNTIF(E15:E200,\"?*\")"
+          },
+          {
+            "cell": "E11",
+            "formula": "=COUNTIFS(E15:E200,\"?*\",N15:N200,\"?*\")"
+          },
+          {
+            "cell": "F11",
+            "formula": "=COUNTIF(N15:N500,\"Accepté\")"
+          }
+        ]
+      },
+      {
+        "name": "FOR",
+        "maxRow": 69,
+        "maxColumn": 19,
+        "populatedCells": 270,
+        "formulas": 6,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "D11",
+            "formula": "=COUNTIF(E15:E200,\"?*\")"
+          },
+          {
+            "cell": "E11",
+            "formula": "=COUNTIFS(E15:E200,\"?*\",N15:N200,\"?*\")"
+          },
+          {
+            "cell": "F11",
+            "formula": "=COUNTIF(N15:N500,\"Accepté\")"
+          }
+        ]
+      },
+      {
+        "name": "VAL",
+        "maxRow": 69,
+        "maxColumn": 19,
+        "populatedCells": 270,
+        "formulas": 6,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "D11",
+            "formula": "=COUNTIF(E15:E200,\"?*\")"
+          },
+          {
+            "cell": "E11",
+            "formula": "=COUNTIFS(E15:E200,\"?*\",N15:N200,\"?*\")"
+          },
+          {
+            "cell": "F11",
+            "formula": "=COUNTIF(N15:N500,\"Accepté\")"
+          }
+        ]
+      },
+      {
+        "name": "STR",
+        "maxRow": 69,
+        "maxColumn": 19,
+        "populatedCells": 270,
+        "formulas": 6,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "D11",
+            "formula": "=COUNTIF(E15:E200,\"?*\")"
+          },
+          {
+            "cell": "E11",
+            "formula": "=COUNTIFS(E15:E200,\"?*\",N15:N200,\"?*\")"
+          },
+          {
+            "cell": "F11",
+            "formula": "=COUNTIF(N15:N500,\"Accepté\")"
+          }
+        ]
+      },
+      {
+        "name": "SMH",
+        "maxRow": 69,
+        "maxColumn": 19,
+        "populatedCells": 270,
+        "formulas": 6,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "D11",
+            "formula": "=COUNTIF(E15:E200,\"?*\")"
+          },
+          {
+            "cell": "E11",
+            "formula": "=COUNTIFS(E15:E200,\"?*\",N15:N200,\"?*\")"
+          },
+          {
+            "cell": "F11",
+            "formula": "=COUNTIF(N15:N500,\"Accepté\")"
+          }
+        ]
+      },
+      {
+        "name": "Paramètres",
+        "maxRow": 29,
+        "maxColumn": 16,
+        "populatedCells": 28,
+        "formulas": 2,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "O9",
+            "formula": "=FMT[Agence]"
+          },
+          {
+            "cell": "P19",
+            "formula": "=INDIRECT(\"FMT[Agence]\")"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "file": "Test.xltx",
+    "sheets": [
+      {
+        "name": "CLIENT",
+        "maxRow": 32,
+        "maxColumn": 10,
+        "populatedCells": 209,
+        "formulas": 0,
+        "brokenReferences": 0,
+        "formulaExamples": []
+      },
+      {
+        "name": "VENTE",
+        "maxRow": 33,
+        "maxColumn": 15,
+        "populatedCells": 222,
+        "formulas": 140,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "E6",
+            "formula": "=IF(ISBLANK(Tableau2[[#This Row],[ID Client]]),\"\",_xlfn.XLOOKUP(Tableau2[[#This Row],[ID Client]],Tableau1[ID],Tableau1[Nom]) & \" \" & _xlfn.XLOOKUP(Tableau2[[#This Row],[ID Client]],Tableau1[ID],Tableau1[Prénom],\"\"))"
+          },
+          {
+            "cell": "I6",
+            "formula": "=IF(OR(ISBLANK(Tableau2[[#This Row],[Référence]]),ISBLANK(Tableau2[[#This Row],[Quantité]])),\"\",_xlfn.XLOOKUP(Tableau2[[#This Row],[Référence]],Tableau3[Référence],Tableau3[Prix HT]))"
+          },
+          {
+            "cell": "J6",
+            "formula": "=IF(OR(ISBLANK(Tableau2[[#This Row],[Référence]]),ISBLANK(Tableau2[[#This Row],[Quantité]])),\"\",Tableau2[[#This Row],[Prix unitaire HT]]*Tableau2[[#This Row],[Quantité]])"
+          }
+        ]
+      },
+      {
+        "name": "SUIVI VENTE",
+        "maxRow": 110,
+        "maxColumn": 10,
+        "populatedCells": 559,
+        "formulas": 184,
+        "brokenReferences": 78,
+        "formulaExamples": [
+          {
+            "cell": "D6",
+            "formula": "=_xlfn.LET(\n  _xlpm.id_client,   _xlfn.XLOOKUP(Tableau4[[#This Row],[ID Vente]],Tableau2[ID Vente],Tableau2[ID Client],\"\"),\n\n _xlfn.XLOOKUP(_xlpm.id_client,Tableau1[ID],Tableau1[Nom]) & \" \" & _xlfn.XLOOKUP(_xlpm.id_client,Tableau1[ID],Tableau1[Prénom],\"\")\n)"
+          },
+          {
+            "cell": "H6",
+            "formula": "=_xlfn.LET(\n  _xlpm.is_id_vente_vide,   AND(NOT(ISBLANK(Tableau4[[#This Row],[ID Vente]])),ISBLANK(#REF!)),\n  _xlpm.is_date_vide,       AND(NOT(ISBLANK(Tableau4[[#This Row],[ID Vente]])),ISBLANK(Tableau4[[#This Row],[Date]])),\n\n  IF(\n   _xlpm.is_id_vente_vide,\n   \"⚠ ID Vente manquant\",\n   IF(_xlpm.is_date_vide, \"⚠ Date manquante\",\"\")\n  )\n)"
+          },
+          {
+            "cell": "D7",
+            "formula": "=_xlfn.LET(\n  _xlpm.id_client,   _xlfn.XLOOKUP(Tableau4[[#This Row],[ID Vente]],Tableau2[ID Vente],Tableau2[ID Client],\"\"),\n\n _xlfn.XLOOKUP(_xlpm.id_client,Tableau1[ID],Tableau1[Nom]) & \" \" & _xlfn.XLOOKUP(_xlpm.id_client,Tableau1[ID],Tableau1[Prénom],\"\")\n)"
+          }
+        ]
+      },
+      {
+        "name": "KPI VENTE",
+        "maxRow": 6,
+        "maxColumn": 11,
+        "populatedCells": 23,
+        "formulas": 7,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "C5",
+            "formula": "=IF(OR(ISBLANK(Tableau9[[#This Row],[Objectif CA ]]),ISBLANK(Tableau9[[#This Row],[CA Réalisé en €]])),\"\",D5/B5)"
+          },
+          {
+            "cell": "D5",
+            "formula": "=SUM(VENTE!J6:J9)"
+          },
+          {
+            "cell": "E5",
+            "formula": "=COUNTA(_xlfn.UNIQUE(_xlfn._xlws.FILTER(Tableau2[ID Client], Tableau2[ID Client]<>0)))"
+          }
+        ]
+      },
+      {
+        "name": "KPI",
+        "maxRow": 1,
+        "maxColumn": 1,
+        "populatedCells": 0,
+        "formulas": 0,
+        "brokenReferences": 0,
+        "formulaExamples": []
+      },
+      {
+        "name": "PRODUITS",
+        "maxRow": 3287,
+        "maxColumn": 13,
+        "populatedCells": 34882,
+        "formulas": 0,
+        "brokenReferences": 0,
+        "formulaExamples": []
+      },
+      {
+        "name": "PARAMETRES",
+        "maxRow": 8,
+        "maxColumn": 14,
+        "populatedCells": 20,
+        "formulas": 4,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "J2",
+            "formula": "=INDIRECT(\"Provenance[Provenance]\")"
+          },
+          {
+            "cell": "N2",
+            "formula": "=INDIRECT(\"Typec[Type de client]\")"
+          },
+          {
+            "cell": "J3",
+            "formula": "="
+          }
+        ]
+      },
+      {
+        "name": "Sandbox",
+        "maxRow": 3306,
+        "maxColumn": 13,
+        "populatedCells": 0,
+        "formulas": 0,
+        "brokenReferences": 0,
+        "formulaExamples": []
+      }
+    ]
+  },
+  {
+    "file": "Fiche des Ventes Test.xltx",
+    "sheets": [
+      {
+        "name": "TDB-LAN",
+        "maxRow": 272,
+        "maxColumn": 46,
+        "populatedCells": 218,
+        "formulas": 8,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "E11",
+            "formula": "=IF(D11=0,\"\",F11/D11)"
+          },
+          {
+            "cell": "F11",
+            "formula": "=SUM(K15:K260)"
+          },
+          {
+            "cell": "G11",
+            "formula": "=COUNTIF(E15:E1000,\"<>\")"
+          }
+        ]
+      },
+      {
+        "name": "TDB-FOR",
+        "maxRow": 272,
+        "maxColumn": 46,
+        "populatedCells": 216,
+        "formulas": 8,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "E11",
+            "formula": "=IF(D11=0,\"\",F11/D11)"
+          },
+          {
+            "cell": "F11",
+            "formula": "=SUM(K15:K260)"
+          },
+          {
+            "cell": "G11",
+            "formula": "=COUNTIF(E15:E1000,\"<>\")"
+          }
+        ]
+      },
+      {
+        "name": "TDB-VAL",
+        "maxRow": 272,
+        "maxColumn": 46,
+        "populatedCells": 218,
+        "formulas": 8,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "E11",
+            "formula": "=IF(D11=0,\"\",F11/D11)"
+          },
+          {
+            "cell": "F11",
+            "formula": "=SUM(K15:K260)"
+          },
+          {
+            "cell": "G11",
+            "formula": "=COUNTIF(E15:E1000,\"<>\")"
+          }
+        ]
+      },
+      {
+        "name": "TDB-STR",
+        "maxRow": 272,
+        "maxColumn": 46,
+        "populatedCells": 206,
+        "formulas": 8,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "E11",
+            "formula": "=IF(D11=0,\"\",F11/D11)"
+          },
+          {
+            "cell": "F11",
+            "formula": "=SUM(K15:K260)"
+          },
+          {
+            "cell": "G11",
+            "formula": "=COUNTIF(E15:E1000,\"<>\")"
+          }
+        ]
+      },
+      {
+        "name": "TDB-SMH",
+        "maxRow": 272,
+        "maxColumn": 46,
+        "populatedCells": 216,
+        "formulas": 8,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "E11",
+            "formula": "=IF(D11=0,\"\",F11/D11)"
+          },
+          {
+            "cell": "F11",
+            "formula": "=SUM(K15:K260)"
+          },
+          {
+            "cell": "G11",
+            "formula": "=COUNTIF(E15:E1000,\"<>\")"
+          }
+        ]
+      },
+      {
+        "name": "TDB",
+        "maxRow": 272,
+        "maxColumn": 46,
+        "populatedCells": 620,
+        "formulas": 433,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "E11",
+            "formula": "=IF(D11=0,\"\",F11/D11)"
+          },
+          {
+            "cell": "F11",
+            "formula": "=SUM(M15:M260)"
+          },
+          {
+            "cell": "G11",
+            "formula": "=COUNTIF(E15:E1000,\"<>\")"
+          }
+        ]
+      },
+      {
+        "name": "BD",
+        "maxRow": 3572,
+        "maxColumn": 58,
+        "populatedCells": 34888,
+        "formulas": 2,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "D10",
+            "formula": "=COUNT(D13:D3491)"
+          },
+          {
+            "cell": "P3209",
+            "formula": "=COUNT(D8:D3211)"
+          }
+        ]
+      },
+      {
+        "name": "Reglage",
+        "maxRow": 38,
+        "maxColumn": 20,
+        "populatedCells": 47,
+        "formulas": 18,
+        "brokenReferences": 0,
+        "formulaExamples": [
+          {
+            "cell": "G9",
+            "formula": "=INDIRECT(Type[[#All],[Type de client]])"
+          },
+          {
+            "cell": "G10",
+            "formula": "="
+          },
+          {
+            "cell": "G11",
+            "formula": "="
+          }
+        ]
+      }
+    ]
+  }
+]
