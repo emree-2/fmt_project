@@ -1,40 +1,58 @@
-# FMT — CRM autonome, version 4
+# France Marbre 84 — CRM autonome, version 5
 
-**Un seul fichier est nécessaire : `index.html`.** Copier ce fichier sur l’ordinateur et l’ouvrir dans un navigateur moderne autorisant JavaScript et IndexedDB. Aucun serveur, installation, compilation, autre fichier ni connexion Internet n’est requis par l’application.
+**Seul `index.html` est nécessaire.** Copier ce fichier et l’ouvrir dans un navigateur moderne autorisant JavaScript, IndexedDB et l’impression. Aucun serveur, compilation, installation, API ou bibliothèque distante n’est requis par l’application. Les fichiers de documentation et les outils de recette sont facultatifs.
 
-Le HTML contient les styles, le JavaScript, les icônes et les 3 283 produits initiaux. Les fichiers de documentation et les outils du dépôt servent uniquement au développement et ne sont pas nécessaires pour utiliser le CRM.
+Le catalogue initial de 3 283 lignes reste intégré au HTML. Les modifications du catalogue et de l’activité sont stockées dans IndexedDB. Faire régulièrement **Paramètres → Exporter JSON** ; déplacer le HTML ne transfère pas automatiquement les données du navigateur.
 
-## Nouveautés de la quatrième version
+## Nouveau parcours
 
-- **Produits** : création et dernière modification tracées, sans inventer les dates des produits historiques. Une sauvegarde sans changement n’actualise pas la date. Référence numérique suivante proposée sur tout le catalogue, produits inactifs inclus, avec contrôle de conflit lors de l’enregistrement. Liens web simplifiés, avec ajout de `https://` pour une saisie commençant par `www.`.
-- **Clients** : menu Gestion des clients, exports JSON/CSV de tous les clients ou des résultats filtrés, import JSON/CSV avec aperçu, validation et confirmation. Mise à jour par identifiant technique ou numéro client stable. Aucun rapprochement automatique par nom ou e-mail, aucune suppression des clients absents du fichier. Les conflits d’identifiants bloquent l’import ; les doublons de coordonnées sont signalés.
-- **SIRET** : texte de 14 chiffres, facultatif pour un professionnel. Société et SIRET sont toujours visibles, mais grisés, désactivés et vidés pour un particulier. Nouveau champ repris dans les imports, exports et sauvegardes.
-- **Tri** : clic sur les en-têtes (croissant, décroissant, puis défaut), tri naturel des références, numérique des montants et chronologique des dates, appliqué avant pagination. Indicateur et navigation clavier ; l’ordre des données enregistrées n’est jamais modifié pour un tri d’affichage.
-- **Prix** : deux curseurs et champs numériques synchronisés, bornes issues des prix réels, croisement des bornes empêché. Les prix absents sont inclus sans filtre et exclus lorsqu’une borne est définie. « Désignation contient » devient « Nom du produit ».
-- **Recherche universelle** : résultats locaux par catégorie (clients, produits, opportunités, devis, ventes), compteurs, affichage progressif, flèches/Entrée/Échap et accès direct aux fiches.
-- **Navigation et analyses** : catalogue et paramètres ancrés en bas du menu sur ordinateur ; tableau Performance par commercial supprimé. Les autres KPI sont conservés.
-- **Logo** : import du fichier officiel PNG/JPEG/WebP dans Paramètres, stockage local et export optionnel d’un nouveau `index.html` qui embarque l’image. L’image collée dans le chat n’a pas été transmise comme fichier téléchargeable aux outils ; le HTML initial conserve donc la marque textuelle. Aucune approximation du logo officiel n’a été dessinée.
+1. Créer ou ouvrir un client.
+2. Créer un **dossier commercial** pour son projet. Un client peut avoir plusieurs dossiers.
+3. Ajouter les produits, quantités, prix proposés et TVA dans ce dossier. Il est possible de commencer sans produit.
+4. Choisir **Générer un devis**, vérifier la proposition, ses conditions et sa validité, puis l’enregistrer en brouillon.
+5. Compléter l’émetteur et les coordonnées client si nécessaire, puis **Émettre et marquer envoyé**. Cette action ne transmet aucun e-mail : imprimer/enregistrer le PDF et le communiquer au client soi-même.
+6. En cas de négociation, créer une nouvelle version ; l’ancienne reste figée et consultable.
+7. **Confirmer la vente** en choisissant la proposition retenue. Les lignes sont figées et un seul dossier de facturation est préparé, sans créer immédiatement une facture émise ni un paiement.
+8. Dans **Facturation & paiements**, vérifier la prévisualisation puis émettre la facture. Le numéro définitif est attribué à cette étape.
+9. Enregistrer l’acompte et le solde avec les montants et dates réellement reçus. Une correction conserve l’ancien enregistrement et ajuste les totaux.
 
-Le schéma de contenu passe à 4. Les versions 1, 2 et 3 restent importables, avec identifiants, relations et historiques conservés. Le catalogue initial de 3 283 lignes reste inchangé dans le HTML. Les fonctionnalités de démonstration, de filtres avancés, de devis/factures, de TVA et de restauration sont préservées.
+Les devis, relances, interactions, facturations et paiements sont accessibles depuis les fiches client et dossier. Les devis et factures possèdent une vue A4 : **Imprimer / enregistrer en PDF** ouvre le mécanisme natif du navigateur ; l’utilisateur doit sélectionner l’enregistrement PDF dans sa fenêtre d’impression.
 
-## Conservation des données
+## Paramètres à renseigner
 
-Les modifications sont conservées dans IndexedDB sur le navigateur et l’appareil utilisés, et ne réécrivent pas le fichier HTML. Faire régulièrement **Paramètres → Exporter JSON**. L’export catalogue seul contient les produits, pas l’activité commerciale. Les exports sont facultatifs pour fonctionner et nécessaires pour transférer vos données vers un autre navigateur ou ordinateur.
+- Émetteur : raison sociale, adresse, SIRET, numéro de TVA et coordonnées selon le cas ; conditions et mentions applicables. Aucune information légale inconnue n’est inventée.
+- TVA par défaut, seuil de relance, objectif de facturation HT.
+- **Afficher les informations de traçabilité**, désactivé par défaut. Les dates commerciales restent toujours visibles.
+- Référentiel des unités de vente, normalisé à partir du catalogue. Les unités utilisées par des produits ne sont pas supprimables ; les documents historiques gardent leur unité d’origine.
+- Logo officiel : l’import local PNG/JPEG/WebP et l’export d’un HTML qui l’embarque sont conservés. Le logo collé dans le chat n’a pas été accessible comme fichier téléchargeable ; aucun redessin n’a été substitué à l’original.
 
-Conserver le même navigateur et le même emplacement du HTML. Les navigateurs peuvent isoler différemment le stockage des fichiers locaux ; exporter avant un déplacement ou un changement d’appareil. Une seule session de modification à la fois est recommandée. La nouvelle version conserve le nom IndexedDB de la première version pour retrouver et migrer sa base sur la même origine.
+## Recherche et ergonomie
 
-## Validation
+La recherche d’en-tête conserve ses suggestions. **Entrée sans sélection** ouvre la page complète des résultats ; **flèche puis Entrée** ouvre directement l’enregistrement sélectionné. La page propose catégories, tris et pagination.
 
-Voir [les résultats de la version 4](docs/VALIDATION-V4.md) et [la recette historique](docs/VALIDATION.md). Le code ne dépend pas d’un serveur ; un serveur HTTP local temporaire a uniquement servi à tester le navigateur cloud, dont la politique bloque `file://`. L’ouverture directe reste à recetter sur le navigateur cible.
+Les filtres clients utilisent un seul composant de période (création ou dernière modification), sans filtre Rue. Les badges particuliers/professionnels sont distincts. Les dates techniques sont masquées par défaut, mais restent conservées et exportées. Les tris, le catalogue modifiable, les liens produits, le SIRET, les imports/exports clients et les filtres avancés sont conservés.
 
-L’analyse des Excel et la conception initiale sont conservées dans [CONCEPTION.md](docs/CONCEPTION.md) comme documentation historique. Les filtres analytiques avancés et les autres limites de la première version non traitées par cette mise à jour restent inchangés.
+## Modèle, migrations et KPI
 
-## Format des imports clients
+Schéma de contenu **5**, sans changement du nom IndexedDB ni réinitialisation. Les sauvegardes V1 à V4 restent lisibles. Voir [les décisions de modèle et de migration](docs/CONCEPTION-V5.md).
 
-JSON recommandé : un export « clients » (`format: "fmt-clients"`, `version: 1`, tableau `clients`). Un tableau JSON de fiches ou une sauvegarde complète compatible est également accepté pour en extraire les clients.
+Les chiffres distinguent les devis, les ventes confirmées, les factures émises et les règlements effectifs. Les corrections annulées ne sont pas encaissées deux fois. Le taux d’acceptation utilise les devis courants, hors versions remplacées ; le nombre de versions émises est affiché séparément.
 
-CSV : séparateur `;` ou `,`, UTF-8, champs entre guillemets pour les retours à la ligne et séparateurs. Les en-têtes d’un export clients sont reconnus : `id`, `number`, `lastName`, `firstName`, `type`, `company`, `siret`, `phone`, `email`, `street`, `postalCode`, `city`, `legacyAddress`, `origin`, `notes`, `createdAt`, `updatedAt`. Des alias français courants sont acceptés. Utiliser le format ISO pour les dates importées ; conserver téléphones, codes postaux et SIRET en colonnes texte dans Excel pour ne pas perdre les zéros avant l’export.
+Les anciens états « Payée » sans montant/date ne créent aucun règlement fictif : ils restent **à vérifier** jusqu’au rapprochement explicite. Les anciennes opportunités dont la confirmation n’était pas établie sont signalées, et les documents orphelins sont rattachés à des dossiers historiques sans fusion automatique entre projets.
 
-Pour mettre à jour, fournir `id` ou `number`. Si les deux sont présents, ils doivent désigner la même fiche. Une colonne absente conserve la valeur existante ; une valeur explicitement vide la vide. La date de création existante reste immuable. Les nouvelles fiches importées sans dates d’origine gardent ces dates non renseignées. Les données de démonstration réimportées comme clients seuls sont traitées prudemment comme des données importées, sans suppression automatique.
+## Sauvegardes, exports et démonstration
 
-L’export HTML avec logo contient le programme et le catalogue initial ; il ne remplace pas l’export JSON pour transférer l’activité ou le catalogue modifié. L’image importée est embarquée à l’identique, sans dépendance à un fichier externe.
+- JSON complet : base, catalogue modifié, instantanés des documents, historique et paiements.
+- JSON/CSV clients : tous les clients ou résultats filtrés, aperçu avant import, mise à jour par identifiants stables, aucune suppression des fiches absentes.
+- JSON/CSV catalogue et CSV des résultats devis/facturation.
+- Données de démonstration : 40 clients, 50 projets, versions de devis, ventes confirmées, factures et paiements fictifs. Génération remplaçable ; suppression protégeant les données réelles ou liées à des éléments fictifs.
+
+Pour le CSV clients, utiliser les en-têtes d’un export (`id`, `number`, `lastName`, `firstName`, `type`, `company`, `siret`, `phone`, `email`, `street`, `postalCode`, `city`, `legacyAddress`, `origin`, `notes`, `createdAt`, `updatedAt`) ; séparateur `;` ou `,`, texte UTF-8, dates ISO. Conserver les identifiants, téléphones, codes postaux et SIRET en texte dans Excel. Une colonne absente conserve sa valeur ; une valeur explicitement vide la vide. Les créations historiques connues restent immuables.
+
+L’export HTML avec logo ne contient pas l’activité ni le catalogue modifié : utiliser le JSON pour les transférer. Une seule session de modification est recommandée, sans synchronisation entre appareils.
+
+## Validation et limites
+
+Voir [la recette V5](docs/VALIDATION-V5.md). `python tools/smoke_test.py` exécute les scénarios de développement avec Playwright et un serveur statique local de recette ; aucun de ces outils n’est nécessaire à l’utilisation du CRM.
+
+La politique du Chromium cloud bloque `file://` ; l’ouverture directe et le stockage associé restent à vérifier dans le navigateur cible. Les contrôles fonctionnels ont utilisé une origine locale temporaire et des interactions réseau coupé. Le document imprimable ne constitue pas à lui seul une certification de conformité légale ou de facturation électronique. Les mentions applicables doivent être vérifiées avant diffusion.

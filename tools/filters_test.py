@@ -1,4 +1,4 @@
-"""Recette complémentaire v3 : filtres combinés, dates, URL, migration, performance."""
+"""Recette complémentaire v5 : filtres combinés, dates, URL, migration, performance."""
 import asyncio, json, time
 from playwright.async_api import async_playwright
 async def main():
@@ -12,7 +12,7 @@ async def main():
   await page.get_by_role('heading',name='Analyses & KPI',exact=True).wait_for()
   await context.set_offline(True)
   # Seed synthetic edge cases with stable identities and controlled historical dates.
-  await page.evaluate('''async()=>{await commit(s=>{for(let i=0;i<5;i++)s.clients.push({id:'test-'+i,number:nextClientNumber(s),firstName:'Élodie',lastName:'Test '+i,type:i<3?'Professionnel':'Particulier',company:i<3?'Atelier exemple':'',phone:'06 00 XX XX '+i,email:'test'+i+'@example.invalid',street:i<3?'12 rue de la République':'3 chemin du Test',postalCode:i===1?'84001':i<3?'84000':'01000',city:i<3?'Avignon':i===3?'Orange':'Bourg-en-Bresse',legacyAddress:'',origin:'Physique',notes:'',siret:'',createdAt:'2026-01-0'+(i+1)+'T10:00:00Z',updatedAt:i===4?'':'2026-02-0'+(5-i)+'T11:30:00Z'});})}''')
+  await page.evaluate('''async()=>{await commit(s=>{s.settings.traceability=true;for(let i=0;i<5;i++)s.clients.push({id:'test-'+i,number:nextClientNumber(s),firstName:'Élodie',lastName:'Test '+i,type:i<3?'Professionnel':'Particulier',company:i<3?'Atelier exemple':'',phone:'06 00 XX XX '+i,email:'test'+i+'@example.invalid',street:i<3?'12 rue de la République':'3 chemin du Test',postalCode:i===1?'84001':i<3?'84000':'01000',city:i<3?'Avignon':i===3?'Orange':'Bourg-en-Bresse',legacyAddress:'',origin:'Physique',notes:'',siret:'',createdAt:'2026-01-0'+(i+1)+'T10:00:00Z',updatedAt:i===4?'':'2026-02-0'+(5-i)+'T11:30:00Z'});})}''')
   await page.evaluate("go('clients')")
   await page.locator('#main-search').fill('elodie')
   assert await page.locator('#list tbody tr').count()==5
@@ -24,23 +24,23 @@ async def main():
   await page.locator('[data-filter-key=postalCode]').fill('84')
   assert await page.locator('#list tbody tr').count()==3
   assert '3 client' in await page.locator('#result-count').inner_text()
-  await page.locator('[data-filter-key=address]').fill('republique')
-  assert await page.locator('#list tbody tr').count()==3
-  await page.locator('[data-filter-key=createdFrom]').fill('2026-01-02')
-  await page.locator('[data-filter-key=createdTo]').fill('2026-01-03')
+  assert not await page.locator('[data-filter-key=address]').count()
+  await page.locator('[data-filter-key=dateFrom]').fill('2026-01-02')
+  await page.locator('[data-filter-key=dateTo]').fill('2026-01-03')
   assert await page.locator('#list tbody tr').count()==2
   await page.locator('#list').get_by_role('button',name='Création',exact=False).click()
   assert 'Test 1' in await page.locator('#list tbody tr').first.inner_text()
   await page.locator('#list').get_by_role('button',name='Dernière modification',exact=False).click()
   assert 'Test 2' in await page.locator('#list tbody tr').first.inner_text()
-  assert any('Dernière modification' in t for t in await page.locator('#list th').all_text_contents())
-  await page.locator('[data-filter-key=updatedFrom]').fill('2026-02-03')
-  await page.locator('[data-filter-key=updatedTo]').fill('2026-02-03')
+  await page.locator('[data-filter-key=dateType]').select_option('updatedAt')
+  assert await page.locator('[data-filter-key=dateFrom]').input_value()=='2026-01-02'
+  await page.locator('[data-filter-key=dateFrom]').fill('2026-02-03')
+  await page.locator('[data-filter-key=dateTo]').fill('2026-02-03')
   assert await page.locator('#list tbody tr').count()==1
-  await page.locator('[data-filter-key=updatedFrom]').fill('')
-  await page.locator('[data-filter-key=updatedTo]').fill('')
-  # Remove one criterion individually.
-  await page.get_by_role('button',name='Retirer Création depuis : 2026-01-02',exact=True).click()
+  await page.locator('[data-filter-key=dateType]').select_option('createdAt')
+  await page.locator('[data-filter-key=dateFrom]').fill('2026-01-02')
+  await page.locator('[data-filter-key=dateTo]').fill('2026-01-03')
+  await page.get_by_role('button',name='Retirer Date de début : 2026-01-02',exact=True).click()
   assert await page.locator('#list tbody tr').count()==3
   await page.get_by_role('button',name='Réinitialiser les filtres',exact=True).click()
   assert await page.locator('#list tbody tr').count()==5
@@ -123,7 +123,7 @@ async def main():
   assert await page.evaluate("""()=>{const s=structuredClone(state),p={...s.products[0]};delete p.url;delete p.category;mergeCatalog(s,{format:'fmt-catalog',version:1,products:[p]});return s.products[0].url===state.products[0].url} """)
   assert await page.evaluate("""()=>{try{let s=structuredClone(state);s.products[0].url='data:text/html,x';validateImport(s);return false}catch{return true}}""")
   # Missing version-2 timestamps stay missing; all documents and stable IDs survive migration.
-  assert await page.evaluate("""()=>{let s=structuredClone(state);s.schemaVersion=2;for(const p of s.products){delete p.url;delete p.category}delete s.clients[0].updatedAt;let m=validateImport(s);return m.schemaVersion===4&&m.clients[0].updatedAt===''&&m.products[0].url===''&&m.clients[0].id===s.clients[0].id} """)
+  assert await page.evaluate("""()=>{let s=structuredClone(state);s.schemaVersion=2;for(const p of s.products){delete p.url;delete p.category}delete s.clients[0].updatedAt;let m=validateImport(s);return m.schemaVersion===5&&m.clients[0].updatedAt===''&&m.products[0].url===''&&m.clients[0].id===s.clients[0].id} """)
   # Thousands of clients: use the same filtering and rendering path, check exact results and pagination.
   perf=await page.evaluate("""()=>{const original=state.clients;state.clients=Array.from({length:10000},(_,i)=>({...original[0],id:'PERF-'+i,number:'CLI-'+String(100000+i),lastName:'Client '+i,city:i%2?'Avignon':'Orange',postalCode:i%2?'84000':'84100'}));view='clients';query='client';clientFilters=blankClientFilters();clientFilters.type='Professionnel';clientFilters.cities=['Avignon'];clientFilters.postalCode='84';const start=performance.now();clientsPage();const elapsed=performance.now()-start,count=filtered().length;state.clients=original;clientFilters=blankClientFilters();query='';return {elapsed,count}} """)
   assert perf['count']==5000,perf
@@ -137,6 +137,6 @@ async def main():
   await page.set_viewport_size({'width':768,'height':1024});await page.screenshot(path='/tmp/fm84-tablet-v3.png',full_page=True)
   assert not errors,errors
   assert all(u.startswith('http://127.0.0.1:8765/') or u.startswith('https://example.invalid/') or u.startswith('data:') for u in requests),requests
-  print('PASS v3 : filtres cumulés clients et produits, multi-villes, accents/multi-mots, dates/tri, sauvegarde sans changement, dates réellement modifiées, URL validées et nouvel onglet, export/import, migration v2, persistance. Zéro erreur JavaScript.')
+  print('PASS v5 filtres : filtres cumulés clients et produits, multi-villes, accents/multi-mots, dates/tri, sauvegarde sans changement, dates réellement modifiées, URL validées et nouvel onglet, export/import, migration v2, persistance. Zéro erreur JavaScript.')
   await browser.close()
-asyncio.run(main())
+if __name__=='__main__':asyncio.run(main())
