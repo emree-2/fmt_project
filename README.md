@@ -1,32 +1,25 @@
-# FMT — Espace commercial
+# FMT — CRM autonome, version 2
 
-Première version d’un CRM local pour une agence, avec le catalogue complet de `Test.xltx`.
+**Un seul fichier est nécessaire : `index.html`.** Copier ce fichier sur l’ordinateur et l’ouvrir dans un navigateur moderne autorisant JavaScript et IndexedDB. Aucun serveur, installation, compilation, autre fichier ni connexion Internet n’est requis par l’application.
 
-## Utilisation
+Le HTML contient les styles, le JavaScript, les icônes et les 3 283 produits initiaux. Les fichiers de documentation et les outils du dépôt servent uniquement au développement et ne sont pas nécessaires pour utiliser le CRM.
 
-Ouvrir `index.html` dans un navigateur moderne autorisant JavaScript et IndexedDB. Aucune installation ni connexion réseau nécessaire. Les données commerciales démarrent vides ; les 3 283 lignes du catalogue sont intégrées. Commencer par **Clients → Nouveau client**, puis créer un devis ou une vente.
+## Nouveautés
 
-Les modifications sont conservées dans le navigateur, pas dans le fichier HTML. Faire régulièrement **Paramètres → Exporter JSON**. Conserver le même navigateur et le même emplacement du fichier ; exporter avant de déplacer le fichier ou de changer d’appareil. Les politiques de stockage des fichiers locaux dépendent du navigateur. Ne pas utiliser plusieurs onglets pour modifier simultanément la même base.
+- **Analyses & KPI** est l’accueil unique. L’ancienne page Tableau de bord est supprimée.
+- **Paramètres → Données de démonstration** génère 40 clients fictifs, avec produits d’intérêt, pipeline, devis, ventes sur six mois, relances et interactions. Génération et suppression demandent confirmation. La démo est remplaçable ; les données réelles et les éléments fictifs modifiés ou liés à des données réelles sont protégés.
+- **Clients** : actions Modifier visibles, société conditionnelle, suppression du commercial client, rue/code postal/ville séparés, recherche et filtres d’adresse. Numéros stables `CLI-000001`, distincts des identifiants techniques préservés.
+- **Catalogue** : action Modifier explicite, édition de toutes les caractéristiques, prix, référence et activation. Export JSON dédié et import par identifiant stable, sans suppression des produits absents du fichier.
+- **Migration version 1 → 2** automatique à l’ouverture et lors de la restauration d’une ancienne sauvegarde. L’adresse d’origine reste dans « Ancienne adresse conservée » si elle ne peut pas être décomposée sûrement. Les associations commerciales et les identifiants techniques ne changent pas.
 
-Pour une recette locale si les fichiers `file://` sont bloqués :
+## Conservation des données
 
-```sh
-cd /workspace/fmt_project
-python -m http.server 8765 --bind 127.0.0.1
-```
+Les modifications sont conservées dans IndexedDB sur le navigateur et l’appareil utilisés, et ne réécrivent pas le fichier HTML. Faire régulièrement **Paramètres → Exporter JSON**. L’export catalogue seul contient les produits, pas l’activité commerciale. Les exports sont facultatifs pour fonctionner et nécessaires pour transférer vos données vers un autre navigateur ou ordinateur.
 
-Le serveur ne fait que servir le fichier ; l’application n’en dépend pas pour sa logique. Le stockage d’une origine HTTP est distinct de celui du fichier local : utiliser le JSON pour transférer les données.
+Conserver le même navigateur et le même emplacement du HTML. Les navigateurs peuvent isoler différemment le stockage des fichiers locaux ; exporter avant un déplacement ou un changement d’appareil. Une seule session de modification à la fois est recommandée. La nouvelle version conserve le nom IndexedDB de la première version pour retrouver et migrer sa base sur la même origine.
 
-## Conception
+## Validation
 
-Voir [l’analyse des trois classeurs, le modèle, l’UX et les limites du prototype](docs/CONCEPTION.md) et [l’audit technique](docs/audit-classeurs.json).
+Voir [les résultats et limites de recette](docs/VALIDATION.md). Le code ne dépend pas d’un serveur ; un serveur HTTP local temporaire a uniquement servi à tester le navigateur cloud, dont la politique bloque `file://`. L’ouverture directe reste à recetter sur le navigateur cible.
 
-## Recette de développement
-
-Avec Playwright Python et Chromium installés, lancer le serveur local ci-dessus puis :
-
-```sh
-python tools/smoke_test.py
-```
-
-Le test utilise un contexte navigateur temporaire, sans toucher aux données d’un utilisateur.
+L’analyse des Excel et la conception initiale sont conservées dans [CONCEPTION.md](docs/CONCEPTION.md) comme documentation historique. Les filtres analytiques avancés et les autres limites de la première version non traitées par cette mise à jour restent inchangés.
