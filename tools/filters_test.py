@@ -12,7 +12,7 @@ async def main():
   await page.get_by_role('heading',name='Analyses & KPI',exact=True).wait_for()
   await context.set_offline(True)
   # Seed synthetic edge cases with stable identities and controlled historical dates.
-  await page.evaluate('''async()=>{await commit(s=>{for(let i=0;i<5;i++)s.clients.push({id:'test-'+i,number:nextClientNumber(s),firstName:'Élodie',lastName:'Test '+i,type:i<3?'Professionnel':'Particulier',company:i<3?'Atelier exemple':'',phone:'06 00 XX XX '+i,email:'test'+i+'@example.invalid',street:i<3?'12 rue de la République':'3 chemin du Test',postalCode:i===1?'84001':i<3?'84000':'01000',city:i<3?'Avignon':i===3?'Orange':'Bourg-en-Bresse',legacyAddress:'',origin:'Physique',notes:'',createdAt:'2026-01-0'+(i+1)+'T10:00:00Z',updatedAt:i===4?'':'2026-02-0'+(5-i)+'T11:30:00Z'});})}''')
+  await page.evaluate('''async()=>{await commit(s=>{for(let i=0;i<5;i++)s.clients.push({id:'test-'+i,number:nextClientNumber(s),firstName:'Élodie',lastName:'Test '+i,type:i<3?'Professionnel':'Particulier',company:i<3?'Atelier exemple':'',phone:'06 00 XX XX '+i,email:'test'+i+'@example.invalid',street:i<3?'12 rue de la République':'3 chemin du Test',postalCode:i===1?'84001':i<3?'84000':'01000',city:i<3?'Avignon':i===3?'Orange':'Bourg-en-Bresse',legacyAddress:'',origin:'Physique',notes:'',siret:'',createdAt:'2026-01-0'+(i+1)+'T10:00:00Z',updatedAt:i===4?'':'2026-02-0'+(5-i)+'T11:30:00Z'});})}''')
   await page.evaluate("go('clients')")
   await page.locator('#main-search').fill('elodie')
   assert await page.locator('#list tbody tr').count()==5
@@ -29,11 +29,11 @@ async def main():
   await page.locator('[data-filter-key=createdFrom]').fill('2026-01-02')
   await page.locator('[data-filter-key=createdTo]').fill('2026-01-03')
   assert await page.locator('#list tbody tr').count()==2
-  await page.locator('#sort-choice').select_option('created-asc')
+  await page.locator('#list').get_by_role('button',name='Création',exact=False).click()
   assert 'Test 1' in await page.locator('#list tbody tr').first.inner_text()
-  await page.locator('#sort-choice').select_option('updated-asc')
+  await page.locator('#list').get_by_role('button',name='Dernière modification',exact=False).click()
   assert 'Test 2' in await page.locator('#list tbody tr').first.inner_text()
-  assert 'Dernière modification' in await page.locator('#list th').all_text_contents()
+  assert any('Dernière modification' in t for t in await page.locator('#list th').all_text_contents())
   await page.locator('[data-filter-key=updatedFrom]').fill('2026-02-03')
   await page.locator('[data-filter-key=updatedTo]').fill('2026-02-03')
   assert await page.locator('#list tbody tr').count()==1
@@ -44,7 +44,7 @@ async def main():
   assert await page.locator('#list tbody tr').count()==3
   await page.get_by_role('button',name='Réinitialiser les filtres',exact=True).click()
   assert await page.locator('#list tbody tr').count()==5
-  await page.locator('#sort-choice').select_option('updated-desc')
+  await page.locator('#list').get_by_role('button',name='Dernière modification',exact=False).click()
   assert 'Test 0' in await page.locator('#list tbody tr').first.inner_text()
   assert '—' in await page.locator('#list tbody tr').last.inner_text()
   # Multiple cities, dynamic values and postal-prefix semantics.
@@ -84,10 +84,11 @@ async def main():
   await page.locator('#facet-format input[type=search]').fill(fmt)
   await page.locator('#facet-format').get_by_role('checkbox',name=fmt,exact=True).check()
   assert await page.evaluate('filtered().every(p=>p.format===productFilters.format[0])')
-  await page.locator('#sort-choice').select_option('price-desc')
+  await page.locator('#list').get_by_role('button',name='Prix HT',exact=False).click()
+  await page.locator('#list').get_by_role('button',name='Prix HT',exact=False).click()
   assert await page.evaluate('filtered().every((p,i,a)=>!i||a[i-1].price>=p.price)')
   await page.locator('[data-filter-key=minPrice]').fill('99')
-  assert 'minimum dépasse' in await page.locator('#filter-error').inner_text()
+  assert await page.evaluate('Number(productFilters.minPrice)<=Number(productFilters.maxPrice)')
   await page.get_by_role('button',name='Réinitialiser les filtres',exact=True).click()
   assert await page.evaluate('filtered().length')==3283
   await page.locator('#main-search').fill('mosaique')
@@ -99,7 +100,7 @@ async def main():
   await page.evaluate("editProduct('P-5')")
   await page.locator('[name=url]').fill('javascript:alert(1)')
   await page.get_by_role('button',name='Enregistrer',exact=True).click()
-  assert 'HTTP ou HTTPS' in await page.locator('#toast').inner_text()
+  assert 'lien web valide' in await page.locator('#toast').inner_text()
   await page.locator('[name=url]').fill('https://example.invalid/produit/travertin')
   await page.locator('[name=category]').fill('Pierres de test')
   await page.get_by_role('button',name='Enregistrer',exact=True).click()
@@ -118,11 +119,11 @@ async def main():
   # Current fields survive complete and catalog-only exports/imports. Legacy catalog leaves URL intact.
   await page.evaluate("window.captured=[];download=(text,name,type)=>captured.push({text,name,type});exportCatalog()")
   exported=await page.evaluate('JSON.parse(captured[0].text)')
-  assert exported['version']==2 and exported['products'][0]['url'].startswith('https:')
+  assert exported['version']==3 and exported['products'][0]['url'].startswith('https:')
   assert await page.evaluate("""()=>{const s=structuredClone(state),p={...s.products[0]};delete p.url;delete p.category;mergeCatalog(s,{format:'fmt-catalog',version:1,products:[p]});return s.products[0].url===state.products[0].url} """)
   assert await page.evaluate("""()=>{try{let s=structuredClone(state);s.products[0].url='data:text/html,x';validateImport(s);return false}catch{return true}}""")
   # Missing version-2 timestamps stay missing; all documents and stable IDs survive migration.
-  assert await page.evaluate("""()=>{let s=structuredClone(state);s.schemaVersion=2;for(const p of s.products){delete p.url;delete p.category}delete s.clients[0].updatedAt;let m=validateImport(s);return m.schemaVersion===3&&m.clients[0].updatedAt===''&&m.products[0].url===''&&m.clients[0].id===s.clients[0].id} """)
+  assert await page.evaluate("""()=>{let s=structuredClone(state);s.schemaVersion=2;for(const p of s.products){delete p.url;delete p.category}delete s.clients[0].updatedAt;let m=validateImport(s);return m.schemaVersion===4&&m.clients[0].updatedAt===''&&m.products[0].url===''&&m.clients[0].id===s.clients[0].id} """)
   # Thousands of clients: use the same filtering and rendering path, check exact results and pagination.
   perf=await page.evaluate("""()=>{const original=state.clients;state.clients=Array.from({length:10000},(_,i)=>({...original[0],id:'PERF-'+i,number:'CLI-'+String(100000+i),lastName:'Client '+i,city:i%2?'Avignon':'Orange',postalCode:i%2?'84000':'84100'}));view='clients';query='client';clientFilters=blankClientFilters();clientFilters.type='Professionnel';clientFilters.cities=['Avignon'];clientFilters.postalCode='84';const start=performance.now();clientsPage();const elapsed=performance.now()-start,count=filtered().length;state.clients=original;clientFilters=blankClientFilters();query='';return {elapsed,count}} """)
   assert perf['count']==5000,perf
