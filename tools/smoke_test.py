@@ -1,4 +1,4 @@
-"""Recette v2. Outil de développement facultatif ; index.html est autonome."""
+"""Recette de régression v3. Outil de développement facultatif ; index.html est autonome."""
 import asyncio, json, tempfile
 from pathlib import Path
 from playwright.async_api import async_playwright, Error
@@ -12,7 +12,7 @@ async def main():
   page.on('request',lambda r:requests.append(r.url))
   await page.goto('http://127.0.0.1:8765/index.html')
   await page.get_by_role('heading',name='Analyses & KPI',exact=True).wait_for()
-  assert await page.evaluate('state.schemaVersion')==2
+  assert await page.evaluate('state.schemaVersion')==3
   assert await page.evaluate('state.products.length')==3283
   assert await page.locator('#nav button').count()==7
   assert 'Tableau de bord' not in await page.locator('#nav').inner_text()
@@ -39,11 +39,11 @@ async def main():
   assert await page.evaluate('state.clients[0].company')==''
   await page.evaluate("go('clients')")
   assert await page.get_by_role('button',name='Modifier',exact=True).count()==1
-  await page.locator('#cityfilter').fill('Bourg')
+  await page.evaluate("setFilter('clients','cities',['Bourg-en-Bresse'])")
   assert await page.locator('#list tbody tr').count()==1
-  await page.locator('#zipfilter').fill('99999')
+  await page.evaluate("setFilter('clients','postalCode','99999')")
   assert 'Aucun résultat' in await page.locator('#list').inner_text()
-  await page.locator('#zipfilter').fill('01000')
+  await page.evaluate("setFilter('clients','postalCode','01000')")
   await page.locator('#global').fill('CLI-000001')
   assert 'Alice Martin' in await page.locator('#list').inner_text()
   # Cancel must not persist changes.
@@ -111,7 +111,7 @@ async def main():
   await page.get_by_role('button',name='Générer des données de démonstration',exact=True).click()
   await page.wait_for_function('state.clients.length===41')
   assert await page.evaluate('state.products.length')==3283
-  assert await page.evaluate('validateImport(state).schemaVersion')==2
+  assert await page.evaluate('validateImport(state).schemaVersion')==3
   assert await page.evaluate("new Set(state.opportunities.filter(o=>o.isDemo).map(o=>o.stage)).size")==8
   assert await page.evaluate("new Set(state.sales.filter(o=>o.isDemo).map(o=>o.date.slice(0,7))).size")==6
   assert await page.evaluate("new Set(state.quotes.filter(o=>o.isDemo).map(o=>o.status)).size")==4
@@ -134,7 +134,7 @@ async def main():
   await page.get_by_role('button',name='Supprimer les données de démonstration',exact=True).click()
   await page.wait_for_function('state.clients.length===2')
   assert await page.evaluate("state.interactions.some(i=>i.note==='Échange réel à préserver')")
-  assert await page.evaluate('validateImport(state).schemaVersion')==2
+  assert await page.evaluate('validateImport(state).schemaVersion')==3
   # Catalog import merges with unchanged IDs, cannot remove products or alter history.
   await page.evaluate("""async()=>{let s={format:'fmt-catalog',version:1,products:[{...state.products[0],price:111,name:'Catalogue réimporté'}]};await commit(x=>mergeCatalog(x,s));} """)
   assert await page.evaluate('state.products[0].price')==111
@@ -145,14 +145,14 @@ async def main():
   await page.evaluate("window.savedDownload=download;window.captured=[];download=(text,name,type)=>captured.push({text,name,type});exportCatalog()")
   catalog=await page.evaluate('JSON.parse(captured[0].text)')
   assert len(catalog['products'])==3283 and catalog['products'][0]['price']==111
-  await page.evaluate("go('clients');csvExport()")
+  await page.evaluate("go('clients');resetSearchFilters('clients');csvExport()")
   csv=await page.evaluate('captured.at(-1).text')
   assert 'postalCode' in csv and 'legacyAddress' in csv and 'owner' not in csv and 'CLI-000001' in csv
   # Full backup restoration through file input.
   await page.evaluate("go('settings')")
   await page.get_by_role('button',name='Exporter JSON',exact=True).click()
   backup=await page.evaluate('JSON.parse(captured.at(-1).text)')
-  assert backup['schemaVersion']==2
+  assert backup['schemaVersion']==3
   await page.locator('#restore').set_input_files({'name':'sauvegarde.json','mimeType':'application/json','buffer':json.dumps(backup).encode()})
   await page.wait_for_function("document.getElementById('toast').textContent==='Sauvegarde restaurée.'")
   # Restore a schema-1 backup: original technical IDs and references must remain.
@@ -178,12 +178,12 @@ async def main():
   await page.get_by_role('button',name='Enregistrer',exact=True).click()
   await page.wait_for_function('state.clients.length===3')
   assert await page.evaluate("new Set(state.clients.map(c=>c.number)).size")==3
-  assert await page.evaluate('validateImport(state).schemaVersion')==2
+  assert await page.evaluate('validateImport(state).schemaVersion')==3
   # Also exercise automatic startup migration, not only import migration.
   await page.evaluate('''async()=>{let old=structuredClone(state);old.schemaVersion=1;delete old.clientSequence;for(let c of old.clients){delete c.number;delete c.street;delete c.postalCode;delete c.city;delete c.legacyAddress;c.address='Ancienne adresse au démarrage';c.owner='Historique';}await persist(old);}''')
   await page.reload()
   await page.get_by_role('heading',name='Analyses & KPI',exact=True).wait_for()
-  assert await page.evaluate('state.schemaVersion')==2
+  assert await page.evaluate('state.schemaVersion')==3
   assert await page.evaluate('state.clients[0].legacyAddress')=='Ancienne adresse au démarrage'
   assert await page.evaluate('state.sales[0].clientId')==cid
   for v in ['analytics','clients','products','pipeline','quotes','sales','settings']:
@@ -200,7 +200,7 @@ async def main():
    await direct.get_by_role('heading',name='Analyses & KPI',exact=True).wait_for(timeout=10000)
    print('PASS ouverture directe file://')
   except Error as e:print('LIMITATION file:// dans ce navigateur géré :',str(e).splitlines()[0])
-  print('PASS v2 : 11 scénarios métier, régression devis/vente, migration v1, démo protégée et remplaçable, catalogue export/import et persistance, fonctionnement hors réseau. Aucune erreur JavaScript.')
+  print('PASS régression v3 : 11 scénarios métier, régression devis/vente, migration v1, démo protégée et remplaçable, catalogue export/import et persistance, fonctionnement hors réseau. Aucune erreur JavaScript.')
   await browser.close()
 
 asyncio.run(main())

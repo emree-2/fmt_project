@@ -1,16 +1,20 @@
-# FMT — CRM autonome, version 2
+# FMT — CRM autonome, version 3
 
 **Un seul fichier est nécessaire : `index.html`.** Copier ce fichier sur l’ordinateur et l’ouvrir dans un navigateur moderne autorisant JavaScript et IndexedDB. Aucun serveur, installation, compilation, autre fichier ni connexion Internet n’est requis par l’application.
 
 Le HTML contient les styles, le JavaScript, les icônes et les 3 283 produits initiaux. Les fichiers de documentation et les outils du dépôt servent uniquement au développement et ne sont pas nécessaires pour utiliser le CRM.
 
-## Nouveautés
+## Nouveautés de cette version
 
-- **Analyses & KPI** est l’accueil unique. L’ancienne page Tableau de bord est supprimée.
-- **Paramètres → Données de démonstration** génère 40 clients fictifs, avec produits d’intérêt, pipeline, devis, ventes sur six mois, relances et interactions. Génération et suppression demandent confirmation. La démo est remplaçable ; les données réelles et les éléments fictifs modifiés ou liés à des données réelles sont protégés.
-- **Clients** : actions Modifier visibles, société conditionnelle, suppression du commercial client, rue/code postal/ville séparés, recherche et filtres d’adresse. Numéros stables `CLI-000001`, distincts des identifiants techniques préservés.
-- **Catalogue** : action Modifier explicite, édition de toutes les caractéristiques, prix, référence et activation. Export JSON dédié et import par identifiant stable, sans suppression des produits absents du fichier.
-- **Migration version 1 → 2** automatique à l’ouverture et lors de la restauration d’une ancienne sauvegarde. L’adresse d’origine reste dans « Ancienne adresse conservée » si elle ne peut pas être décomposée sûrement. Les associations commerciales et les identifiants techniques ne changent pas.
+- **Charte France Marbre 84** : violet principal `#29166F`, accents rouges et fond clair. Le logo officiel sera intégré lorsque son fichier sera fourni ; le lien PagesJaunes transmis est bloqué par le proxy réseau du cloud. Aucune reproduction approximative n’a été créée.
+- **Clients** : recherche immédiate et panneau de filtres combinant type, villes multiples, préfixe de code postal, adresse, dates de création et modification. Étiquettes actives supprimables individuellement, compteur et réinitialisation. Les choix viennent de la base courante.
+- **Dates clients** : création et dernière modification visibles, tris croissants/décroissants. Une sauvegarde sans changement ne modifie plus la date. Une date historique absente reste absente.
+- **Catalogue** : en-tête hiérarchisé, menu Gestion du catalogue, recherche sans accents et à plusieurs mots, panneau horizontal repliable, filtres techniques multiples, prix minimum/maximum libres, compteur, critères actifs et tris référence/nom/prix.
+- **Familles** : catégories éditables ; suggestions d’après les désignations explicitement identifiées, sans réécrire les références ni les caractéristiques du catalogue.
+- **Lien produit** : URL HTTP/HTTPS éditable, fiche détaillée et lien « Voir sur le site » dans un nouvel onglet. URL vide pour les anciens produits ; le lien nécessite naturellement Internet pour consulter le site, mais aucune fonction du CRM n’en dépend.
+- **Compatibilité** : schéma 3, migrations depuis les versions 1 et 2 et catalogue JSON versions 1 et 2. Identifiants, relations, prix historiques, données réelles et démo conservés. Un ancien import catalogue sans URL/catégorie n’efface pas les nouvelles valeurs existantes.
+
+Les fonctionnalités de la version 2 restent présentes : accueil Analyses & KPI unique, numéros clients stables, adresses structurées, société conditionnelle, catalogue complet modifiable, démo remplaçable avec suppression protégée, devis, ventes et sauvegardes.
 
 ## Conservation des données
 
@@ -20,6 +24,6 @@ Conserver le même navigateur et le même emplacement du HTML. Les navigateurs p
 
 ## Validation
 
-Voir [les résultats et limites de recette](docs/VALIDATION.md). Le code ne dépend pas d’un serveur ; un serveur HTTP local temporaire a uniquement servi à tester le navigateur cloud, dont la politique bloque `file://`. L’ouverture directe reste à recetter sur le navigateur cible.
+Voir [les résultats de la version 3](docs/VALIDATION-V3.md) et [la recette historique](docs/VALIDATION.md). Le code ne dépend pas d’un serveur ; un serveur HTTP local temporaire a uniquement servi à tester le navigateur cloud, dont la politique bloque `file://`. L’ouverture directe reste à recetter sur le navigateur cible.
 
 L’analyse des Excel et la conception initiale sont conservées dans [CONCEPTION.md](docs/CONCEPTION.md) comme documentation historique. Les filtres analytiques avancés et les autres limites de la première version non traitées par cette mise à jour restent inchangés.
