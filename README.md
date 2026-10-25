@@ -1,8 +1,18 @@
-# France Marbre 84 — CRM autonome, version 9
+# France Marbre 84 — CRM autonome, version 10
 
 **Seul `index.html` est nécessaire.** Copier ce fichier et l’ouvrir dans un navigateur moderne autorisant JavaScript, IndexedDB et l’impression. Aucun serveur, compilation, installation, API ou bibliothèque distante n’est requis par l’application. Les fichiers de documentation et les outils de recette sont facultatifs.
 
-Le catalogue initial de 3 283 lignes reste intégré au HTML. Les modifications du catalogue et de l’activité sont stockées dans IndexedDB. Faire régulièrement **Paramètres → Exporter JSON** ; déplacer le HTML ne transfère pas automatiquement les données du navigateur.
+Le catalogue initial de 3 283 lignes reste intégré au HTML. Les modifications du catalogue et de l’activité sont stockées dans IndexedDB. Déplacer le HTML ne transfère pas les données du navigateur : créer et conserver une sauvegarde chiffrée chaque jour.
+
+## Nouveautés de la version 10
+
+- **Mode Agence** : choisir une des quatre agences au premier lancement. Son identifiant permanent est inscrit dans les enregistrements commerciaux. Les anciennes données attendent un choix explicite avant leur rattachement.
+- **Sauvegarde quotidienne** : exporter un instantané complet chiffré par une phrase secrète propre à l’agence, puis déposer soi-même le fichier dans le stockage cloud prévu. Le CRM rappelle discrètement l’absence de sauvegarde du jour ; il ne prétend pas effectuer un transfert automatique.
+- **Mode Direction** : importer manuellement les sauvegardes des quatre agences, chacune dans un instantané IndexedDB indépendant. Sélectionner une agence ou toutes pour consulter clients, dossiers, devis, factures, relances, recherche et KPI. Les copies importées sont en lecture seule.
+- Réimporter une sauvegarde complète remplace uniquement l’agence correspondante. Les numéros commerciaux identiques entre agences coexistent ; le catalogue commun n’est chargé qu’une fois dans la consultation consolidée.
+- L’import vérifie le poste de référence, la fraîcheur, toutes les collections et leurs relations avant confirmation. Les imports plus anciens et les changements de poste exigent une procédure explicite.
+
+Le **schéma métier reste 7** ; son extension d’agence est identifiée par `agencySchemaVersion: 1`. Le format chiffré `fmt-agency-backup` est version 1. Voir [la conception, le format et la procédure pour les équipes](docs/CONCEPTION-V10.md) ainsi que [les tests V10](docs/VALIDATION-V10.md).
 
 ## Nouveautés de la version 9
 
