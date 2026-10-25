@@ -1,10 +1,18 @@
-# France Marbre 84 — CRM autonome, version 10
+# France Marbre 84 — CRM autonome, version 11
 
 **Seul `index.html` est nécessaire.** Copier ce fichier et l’ouvrir dans un navigateur moderne autorisant JavaScript, IndexedDB et l’impression. Aucun serveur, compilation, installation, API ou bibliothèque distante n’est requis par l’application. Les fichiers de documentation et les outils de recette sont facultatifs.
 
 Le catalogue initial de 3 283 lignes reste intégré au HTML. Les modifications du catalogue et de l’activité sont stockées dans IndexedDB. Déplacer le HTML ne transfère pas les données du navigateur : créer et conserver une sauvegarde chiffrée chaque jour.
 
-## Nouveautés de la version 10
+## Version 11 : une agence par installation
+
+Au premier lancement, saisir simplement le nom de l’agence ; la ville et le nom du poste sont facultatifs. Le CRM génère un identifiant `AG-<NOM>-<6 caractères hexadécimaux>` une seule fois. Le nom reste modifiable dans **Paramètres → Mon agence**, tandis que l’identifiant reste fixe. Les installations historiques `AG01` à `AG04` conservent leur identité et leurs données.
+
+Le mode Direction et la consolidation ont été retirés de ce fichier. Les sauvegardes chiffrées quotidiennes au format V10 restent disponibles dans les Paramètres, avec contrôle de l’agence lors de la restauration. Les quatre modules Clients, Catalogue, Suivi commercial et Facturation disposent d’un menu **Gestion des données**. Les deux modules commerciaux proposent un JSON relationnel avec prévisualisation à l’import ; les éléments identiques sont ignorés et les conflits conservent la version locale. Les CSV reprennent les résultats filtrés et triés de l’onglet courant. Le bouton **Filtres** se trouve à côté de la recherche dans les modules commerciaux.
+
+Voir [la conception V11](docs/CONCEPTION-V11.md) et [la validation V11](docs/VALIDATION-V11.md). La recette courante est `python tools/smoke_test.py` avec Chromium et Playwright installés.
+
+## Historique : version 10
 
 - **Mode Agence** : choisir une des quatre agences au premier lancement. Son identifiant permanent est inscrit dans les enregistrements commerciaux. Les anciennes données attendent un choix explicite avant leur rattachement.
 - **Sauvegarde quotidienne** : exporter un instantané complet chiffré par une phrase secrète propre à l’agence, puis déposer soi-même le fichier dans le stockage cloud prévu. Le CRM rappelle discrètement l’absence de sauvegarde du jour ; il ne prétend pas effectuer un transfert automatique.

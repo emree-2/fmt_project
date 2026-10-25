@@ -1,0 +1,7 @@
+# Validation V11
+
+Exécuter `python tools/smoke_test.py` (Chromium et Playwright requis). La suite `iteration11_test.py` lance un serveur HTTP statique de recette ; l’application n’en dépend pas et la sauvegarde chiffrée est testée navigateur hors ligne.
+
+Scénarios automatisés : premier accueil sans Direction ; identifiant aléatoire normalisé et stable après changement de nom ; 40 clients et 50 dossiers de démonstration rattachés à l’agence ; menus et boutons Filtres des onglets Dossiers, Devis, Relances et Facturation ; saisie dans un filtre avec mise à jour immédiate des résultats ; vue Kanban ; sauvegarde chiffrée et déchiffrement ; exports JSON commerciaux et de facturation avec relations et métadonnées ; refus d’un JSON d’une autre agence et d’un graphe de facturation orphelin ; conflits d’identifiants conservés ; CSV dossiers, facturation et règlements ; réimport réel sans doublons ; restauration de la sauvegarde complète et refus d’une restauration vers une autre agence ; persistance après rechargement ; migration simulée d’une base `AG01` avec 40 clients, poste historique et identifiants conservés.
+
+Contrôles statiques : `node --check` du script intégré, compilation Python de la recette, `git diff --check`, comparaison SHA-256 du catalogue intégré avec la version précédente. Les scripts V10 restent archivés dans `tools/iteration10_test.py` pour référence historique ; ils vérifient l’ancien mode Direction et ne sont plus la recette courante.
