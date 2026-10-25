@@ -1,8 +1,22 @@
-# France Marbre 84 — CRM autonome, version 7
+# France Marbre 84 — CRM autonome, version 8
 
 **Seul `index.html` est nécessaire.** Copier ce fichier et l’ouvrir dans un navigateur moderne autorisant JavaScript, IndexedDB et l’impression. Aucun serveur, compilation, installation, API ou bibliothèque distante n’est requis par l’application. Les fichiers de documentation et les outils de recette sont facultatifs.
 
 Le catalogue initial de 3 283 lignes reste intégré au HTML. Les modifications du catalogue et de l’activité sont stockées dans IndexedDB. Faire régulièrement **Paramètres → Exporter JSON** ; déplacer le HTML ne transfère pas automatiquement les données du navigateur.
+
+## Nouveautés de la version 8
+
+Cette itération refond la présentation sans migration : le schéma de contenu reste **7**, les règles commerciales et financières restent inchangées.
+
+- Composants communs : navigation avec SVG intégrés, couleurs de statuts cohérentes, tableaux plus lisibles, montants alignés, boutons compacts et focus visibles.
+- Fiches élargies avec en-tête fixe ; coordonnées client par libellé, synthèse de dossier et raccourcis vers Produits / Devis / Relances. Les informations complémentaires du projet sont repliables.
+- Filtres rapides Type/Ville pour les clients, Famille/Couleur pour les produits ; critères complémentaires dans Filtres avancés. Pagination principale à 20, 40 (valeur initiale), 50 ou 100 lignes.
+- Résumé financier à trois valeurs principales, acompte attendu secondaire et formulaire de règlement mieux hiérarchisé.
+- Graphiques avec graduation, valeurs accessibles au survol et au clavier ; mêmes chiffres qu’avant.
+- Paramètres en cinq catégories : **Général**, **Commercial**, **Documents**, **Catalogue**, **Données & administration**. Sauvegardes, logo, traçabilité et démonstration sont dans cette dernière ; les règles TVA/objectifs/délai après devis restent dans Général.
+- Retours d’enregistrement/validation visibles également dans les fenêtres ; menus fermés au clic ou au changement de focus extérieur.
+
+Voir [l’audit et les décisions UX/UI](docs/AUDIT-UX-V8.md), puis [la validation V8](docs/VALIDATION-V8.md).
 
 ## Nouveautés de la version 7
 
@@ -73,6 +87,6 @@ L’export HTML avec logo ne contient pas l’activité ni le catalogue modifié
 
 ## Validation et limites
 
-Voir [la recette V7](docs/VALIDATION-V7.md). `python tools/smoke_test.py` exécute les scénarios de développement avec Playwright et un serveur statique local de recette ; aucun de ces outils n’est nécessaire à l’utilisation du CRM.
+Voir [la recette V8](docs/VALIDATION-V8.md). `python tools/smoke_test.py` exécute les scénarios de développement avec Playwright et un serveur statique local de recette ; aucun de ces outils n’est nécessaire à l’utilisation du CRM.
 
 La politique du Chromium cloud bloque `file://` ; l’ouverture directe et le stockage associé restent à vérifier dans le navigateur cible. Les contrôles fonctionnels ont utilisé une origine locale temporaire et des interactions réseau coupé. Le document imprimable ne constitue pas à lui seul une certification de conformité légale ou de facturation électronique. Les mentions applicables doivent être vérifiées avant diffusion.

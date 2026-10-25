@@ -60,7 +60,7 @@ async def main():
   await pg.evaluate('cancelReminder(state.reminders[1].id)');await pg.evaluate('queueReminderCheck()');assert await pg.evaluate('state.reminders.length')==2
   await pg.evaluate("async()=>{await commit(s=>{s.settings.autoReminders.enabled=false;s.opportunities[0].lastBusinessActivityAt='2026-03-01T10:00:00Z';});}");assert await pg.evaluate('state.reminders.length')==2
   # Settings UI keeps independent quote delay. Explicit re-enable detects stale dossier.
-  await pg.evaluate("closeDialog();go('settings')");await pg.locator('#automatic-form [name=enabled]').check();await pg.locator('#automatic-form [name=days]').fill('7');await pg.locator('#automatic-form button').click();await pg.wait_for_function('state.settings.autoReminders.days===7');assert await pg.evaluate('state.settings.reminderDays')==10;assert await pg.evaluate('state.reminders.length')==3
+  await pg.evaluate("closeDialog();go('settings');openSettingsCategory('data')");await pg.evaluate("openSettingsCategory('commercial')");await pg.locator('#automatic-form [name=enabled]').check();await pg.locator('#automatic-form [name=days]').fill('7');await pg.locator('#automatic-form button').click();await pg.wait_for_function('state.settings.autoReminders.days===7');assert await pg.evaluate('state.settings.reminderDays')==10;assert await pg.evaluate('state.reminders.length')==3
   # Timer queued during a form never closes it or discards typed fields.
   await pg.evaluate(f"editOpportunity('{oid}')");await pg.locator('[name=title]').fill('Saisie en cours');await pg.evaluate('queueReminderCheck()');assert await pg.locator('[name=title]').input_value()=='Saisie en cours';await pg.locator('#editform').get_by_role('button',name='Enregistrer',exact=True).click();await pg.wait_for_function("state.opportunities[0].title==='Saisie en cours'");assert await pg.evaluate('state.opportunities[0].lastBusinessActivityAt')>'2026-03-01'
   # Manual reminder CRUD and actual completion date, quick exchange, one journal row each.
@@ -80,7 +80,7 @@ async def main():
   # All excluded stages: no automatic reminders even with old activity; new business activity restarts delay.
   result=await pg.evaluate("""()=>{const s=structuredClone(state);s.reminders=[];for(const stage of ['Vente confirmée','Perdu / abandonné','À vérifier (historique)'])s.opportunities.push({...s.opportunities[0],id:'EX-'+stage,stage,lastBusinessActivityAt:'2025-01-01T10:00:00Z'});s.opportunities[0].lastBusinessActivityAt=now();return generateInactivityReminders(s)}""");assert result==0
   # Multiselection stays active across table/Kanban and combines with search; payments use same component.
-  await pg.evaluate("closeDialog();go('settings');generateDemo()");await pg.wait_for_function('state.clients.length===41')
+  await pg.evaluate("closeDialog();go('settings');openSettingsCategory('data');generateDemo()");await pg.wait_for_function('state.clients.length===41')
   await pg.evaluate("go('pipeline');commercialTab='dossiers';kanban=false;pipelinePage()")
   await pg.locator('[data-status-kind=stages] summary').click();await pg.locator('[data-status-index="0"]').check();await pg.locator('[data-status-index="1"]').check()
   count=await pg.evaluate('state.opportunities.filter(o=>commercialStages.includes(o.stage)).length');assert await pg.locator('table[data-table=opportunities] tbody tr').count()==count
@@ -90,7 +90,7 @@ async def main():
   await pg.evaluate("go('sales')");await pg.locator('[data-status-kind=payments] summary').click();await pg.locator('[data-status-index="0"]').check();await pg.locator('[data-status-index="1"]').check()
   expected_count=await pg.evaluate("state.sales.filter(b=>['unpaid','deposit'].includes(paymentSummary(b).key)).length");assert await pg.locator('table[data-table=billing] tbody tr').count()==expected_count
   assert str(expected_count)+' résultat' in await pg.locator('#billing-results .pagination').inner_text()
-  await pg.locator('table[data-table=billing]').get_by_role('button',name='Total TTC',exact=False).click();assert await pg.locator('table[data-table=billing] tbody tr').count()==expected_count
+  await pg.locator('[data-status-kind=payments] summary').click();await pg.locator('table[data-table=billing]').get_by_role('button',name='Total TTC',exact=False).click();assert await pg.locator('table[data-table=billing] tbody tr').count()==expected_count
   await pg.evaluate("go('products');productPanelOpen=true;productsPage()");assert await pg.locator('#facet-unit').count()==0;assert await pg.locator('table[data-table=products]').get_by_role('button',name='Unité',exact=False).count()==1
   assert await pg.evaluate('()=>{const s=structuredClone(state);applyDemoRemoval(s);validateImport(s);return !s.clients.some(c=>c.isDemo)}')
   assert await pg.evaluate('validateImport(state).schemaVersion')==7
@@ -114,7 +114,7 @@ async def main():
   assert 'Rappel historique' in await pg.locator('[data-interaction-id=MIG-R]').inner_text()
   assert await pg.evaluate('validateImport(state).schemaVersion')==7
   # Restore JSON through actual file input and check business activity remains the backed-up value.
-  await pg.evaluate("closeDialog();go('settings')");pg.on('dialog',lambda d:d.accept());await pg.locator('#restore').set_input_files({'name':'v6.json','mimeType':'application/json','buffer':json.dumps(new).encode()});await pg.wait_for_function("document.getElementById('toast').textContent==='Sauvegarde restaurée.'")
+  await pg.evaluate("closeDialog();go('settings');openSettingsCategory('data')");pg.on('dialog',lambda d:d.accept());await pg.locator('#restore').set_input_files({'name':'v6.json','mimeType':'application/json','buffer':json.dumps(new).encode()});await pg.wait_for_function("document.getElementById('toast').textContent==='Sauvegarde restaurée.'")
   assert await pg.evaluate('state.opportunities[0].lastBusinessActivityAt')==new['opportunities'][0]['lastBusinessActivityAt']
   # Startup detects overdue work persisted without running a check; repeated reload preserves one alert.
   await pg.evaluate("async()=>{closeDialog();state.settings.autoReminders={enabled:true,days:10};for(const o of state.opportunities)o.lastBusinessActivityAt=now();state.opportunities.find(isOpen).lastBusinessActivityAt='2025-01-01T10:00:00Z';await persist(state)}")

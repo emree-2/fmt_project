@@ -23,10 +23,11 @@ async def main():
   await pg.locator('#toggle-filters').click();assert await pg.locator('#advanced-filters fieldset').count()==1
   assert not await pg.locator('[data-filter-key=address]').count()
   await pg.locator('[data-filter-key=dateFrom]').fill('2020-01-01');await pg.locator('[data-filter-key=dateTo]').fill('2030-12-31');await pg.locator('[data-filter-key=dateType]').select_option('updatedAt');assert await pg.locator('[data-filter-key=dateFrom]').input_value()=='2020-01-01'
-  await pg.evaluate("go('settings')")
+  await pg.evaluate("go('settings');openSettingsCategory('data')")
+  await pg.evaluate("openSettingsCategory('documents')")
   for key,value in {'legalName':'Entreprise de recette fictive','street':'1 rue de Recette','postalCode':'01000','city':'Ville fictive','siret':'00000000000000','email':'test@example.invalid','terms':'Conditions de recette.','legalMentions':'Mentions de test, sans valeur commerciale.'}.items():await pg.locator(f'#company-form [name={key}]').fill(value)
   await pg.get_by_role('button',name='Enregistrer l’émetteur',exact=True).click();await pg.wait_for_function("state.settings.company.legalName==='Entreprise de recette fictive'")
-  await pg.locator('#trace-toggle').check();await pg.wait_for_function('state.settings.traceability===true');await pg.evaluate("go('clients')");assert await pg.locator('#list th').get_by_text('Création',exact=False).count()==1
+  await pg.evaluate("openSettingsCategory('data')");await pg.locator('#trace-toggle').check();await pg.wait_for_function('state.settings.traceability===true');await pg.evaluate("go('clients')");assert await pg.locator('#list th').get_by_text('Création',exact=False).count()==1
   # Two independent dossiers for one client, with a complete multline proposal.
   await pg.evaluate(f"editOpportunity(null,'{cid}')")
   await pg.locator('[name=title]').fill('Terrasse travertin beige');await pg.locator('[name=description]').fill('Projet de test à deux produits.');await pg.locator('[name=stage]').select_option('Devis à préparer')
@@ -92,22 +93,22 @@ async def main():
   await pg.get_by_role('button',name=re.compile(r'^Clients \(')).click();assert await pg.locator('#search-sections section').count()==1
   await pg.locator('#global').fill('CLI-000001');await pg.locator('#global').press('ArrowDown');await pg.locator('#global').press('Enter');assert await pg.locator('#dialogtitle').inner_text()=='Fiche client';await pg.evaluate('closeDialog()')
   # Units are configurable and do not rewrite existing document snapshots.
-  await pg.evaluate("go('settings')");await pg.locator('#unit-form [name=unit]').fill('Boîte');await pg.locator('#unit-form button').click();await pg.wait_for_function("state.settings.allowedUnits.includes('Boîte')");await pg.evaluate('editProduct()');assert await pg.locator('select[name=unit] option[value="Boîte"]').count()==1;await pg.evaluate('closeDialog()')
+  await pg.evaluate("go('settings');openSettingsCategory('data')");await pg.evaluate("openSettingsCategory('catalog')");await pg.locator('#unit-form [name=unit]').fill('Boîte');await pg.locator('#unit-form button').click();await pg.wait_for_function("state.settings.allowedUnits.includes('Boîte')");await pg.evaluate('editProduct()');assert await pg.locator('select[name=unit] option[value="Boîte"]').count()==1;await pg.evaluate('closeDialog()')
   # Integrated quote/invoice filters and CSV exports remain available.
   await pg.evaluate("closeDialog();go('pipeline');commercialTab='devis';pipelinePage();window.csvs=[];download=(text,name,type)=>{csvs.push({text,name,type})}")
   await pg.locator('[aria-label="Statut du devis"]').select_option('Accepté');assert await pg.locator('table[data-table=quotes] tbody tr').count()==1
   await pg.get_by_role('button',name='Exporter les résultats CSV',exact=True).click();assert await pg.evaluate('csvs.at(-1).text.includes(state.quotes[1].number)')
   await pg.evaluate("go('sales')");await pg.locator('[data-status-kind=payments] summary').click();await pg.locator('[data-status-index="2"]').check();await pg.get_by_role('button',name='Exporter les résultats CSV',exact=True).click();assert '2400' in await pg.evaluate('csvs.at(-1).text')
-  await pg.evaluate("go('settings')")
+  await pg.evaluate("go('settings');openSettingsCategory('data')")
   # Model validation, demo lifecycle, backup restoration and reload.
   assert await pg.evaluate('validateImport(state).schemaVersion')==7
   real_sales=await pg.evaluate('state.sales.length');await pg.get_by_role('button',name='Générer des données de démonstration',exact=True).click();await pg.wait_for_function('state.clients.length===41');assert await pg.evaluate('state.opportunities.filter(o=>o.isDemo).length')==50
   assert await pg.evaluate('state.confirmedSales.filter(c=>c.isDemo).length')>0;assert await pg.evaluate('state.payments.filter(p=>p.isDemo).length')>0;assert await pg.evaluate('validateImport(state).schemaVersion')==7
-  await pg.evaluate("go('pipeline');commercialTab='dossiers';kanban=false;pipelinePage()");assert await pg.locator('table[data-table=opportunities] tbody tr').count()==40;await pg.get_by_role('button',name='→',exact=True).click();assert await pg.evaluate('page')==1;await pg.evaluate("go('settings')")
+  await pg.evaluate("go('pipeline');commercialTab='dossiers';kanban=false;pipelinePage()");assert await pg.locator('table[data-table=opportunities] tbody tr').count()==40;await pg.get_by_role('button',name='→',exact=True).click();assert await pg.evaluate('page')==1;await pg.evaluate("go('settings');openSettingsCategory('data')")
   await pg.get_by_role('button',name='Supprimer les données de démonstration',exact=True).click();await pg.wait_for_function('state.clients.length===1');assert await pg.evaluate('state.sales.length')==real_sales;assert await pg.evaluate('state.payments.length')==4
   await pg.evaluate('window.exports=[];download=(text,name,type)=>exports.push({text,name,type})');await pg.get_by_role('button',name='Exporter JSON',exact=True).click();backup=await pg.evaluate('exports.at(-1).text');await pg.locator('#restore').set_input_files({'name':'backup.json','mimeType':'application/json','buffer':backup.encode()});await pg.wait_for_function("document.getElementById('toast').textContent==='Sauvegarde restaurée.'")
   await ctx.set_offline(False);await pg.reload();await pg.get_by_role('heading',name='Analyses & KPI',exact=True).wait_for();assert await pg.evaluate('paymentSummary(state.sales[0]).paid')==2400
-  await pg.evaluate("go('settings')");await pg.locator('#trace-toggle').uncheck();await pg.wait_for_function('!state.settings.traceability');await pg.evaluate("go('pipeline');kanban=false;pipelinePage()");await pg.screenshot(path='/tmp/fm84-v5-commercial.png',full_page=True);await pg.set_viewport_size({'width':768,'height':1024});await pg.screenshot(path='/tmp/fm84-v5-tablet.png',full_page=True);await pg.set_viewport_size({'width':1440,'height':1080});await pg.evaluate(f"billingDetail('{bid}')");await pg.screenshot(path='/tmp/fm84-v5-billing.png',full_page=True)
+  await pg.evaluate("go('settings');openSettingsCategory('data')");await pg.locator('#trace-toggle').uncheck();await pg.wait_for_function('!state.settings.traceability');await pg.evaluate("go('pipeline');kanban=false;pipelinePage()");await pg.screenshot(path='/tmp/fm84-v5-commercial.png',full_page=True);await pg.set_viewport_size({'width':768,'height':1024});await pg.screenshot(path='/tmp/fm84-v5-tablet.png',full_page=True);await pg.set_viewport_size({'width':1440,'height':1080});await pg.evaluate(f"billingDetail('{bid}')");await pg.screenshot(path='/tmp/fm84-v5-billing.png',full_page=True)
   assert not errors,errors
   print('PASS V5 : dossier multiligne, devis versionnés/figés, relances, confirmation unique, facture émise séparément, acompte 1 200 + solde, dépassement refusé, correction tracée, réémission, impression A4 PDF de recette, recherche complète/clavier, trace, unités, démo et sauvegarde/persistance.')
   await b.close()
