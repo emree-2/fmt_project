@@ -17,7 +17,7 @@ async def main():
   await page.locator('#main-search').fill('elodie')
   assert await page.locator('#list tbody tr').count()==5
   await page.locator('#toggle-filters').click()
-  await page.locator('[data-filter-key=type]').select_option('Professionnel')
+  await page.locator('#advanced-filters [data-fkey=type] input[value=Professionnel]').check()
   await page.locator('#facet-cities summary').click()
   await page.locator('#facet-cities input[type=search]').fill('avig')
   await page.locator('#facet-cities input[type=checkbox]').check()
@@ -28,9 +28,9 @@ async def main():
   await page.locator('[data-filter-key=dateFrom]').fill('2026-01-02')
   await page.locator('[data-filter-key=dateTo]').fill('2026-01-03')
   assert await page.locator('#list tbody tr').count()==2
-  await page.locator('#list').get_by_role('button',name='Création',exact=False).click()
+  await page.locator('#list').locator('button[data-sort-key=created]').click()
   assert 'Test 1' in await page.locator('#list tbody tr').first.inner_text()
-  await page.locator('#list').get_by_role('button',name='Dernière modification',exact=False).click()
+  await page.locator('#list').locator('button[data-sort-key=updated]').click()
   assert 'Test 2' in await page.locator('#list tbody tr').first.inner_text()
   await page.locator('[data-filter-key=dateType]').select_option('updatedAt')
   assert await page.locator('[data-filter-key=dateFrom]').input_value()=='2026-01-02'
@@ -42,9 +42,9 @@ async def main():
   await page.locator('[data-filter-key=dateTo]').fill('2026-01-03')
   await page.get_by_role('button',name='Retirer Date de début : 2026-01-02',exact=True).click()
   assert await page.locator('#list tbody tr').count()==3
-  await page.get_by_role('button',name='Réinitialiser les filtres',exact=True).click()
+  await page.evaluate("toggleCommonFilters(view,true)");await page.get_by_role('button',name='Réinitialiser les filtres',exact=True).click();await page.locator('#main-search').fill('')
   assert await page.locator('#list tbody tr').count()==5
-  await page.locator('#list').get_by_role('button',name='Dernière modification',exact=False).click()
+  await page.locator('#list').locator('button[data-sort-key=updated]').click()
   assert 'Test 0' in await page.locator('#list tbody tr').first.inner_text()
   assert '—' in await page.locator('#list tbody tr').last.inner_text()
   # Multiple cities, dynamic values and postal-prefix semantics.
@@ -84,17 +84,17 @@ async def main():
   await page.locator('#facet-format input[type=search]').fill(fmt)
   await page.locator('#facet-format').get_by_role('checkbox',name=fmt,exact=True).check()
   assert await page.evaluate('filtered().every(p=>p.format===productFilters.format[0])')
-  await page.locator('#list').get_by_role('button',name='Prix HT',exact=False).click()
-  await page.locator('#list').get_by_role('button',name='Prix HT',exact=False).click()
+  await page.locator('#list').locator('button[data-sort-key=price]').click()
+  await page.locator('#list').locator('button[data-sort-key=price]').click()
   assert await page.evaluate('filtered().every((p,i,a)=>!i||a[i-1].price>=p.price)')
   await page.locator('[data-filter-key=minPrice]').fill('99')
   assert await page.evaluate('Number(productFilters.minPrice)<=Number(productFilters.maxPrice)')
-  await page.get_by_role('button',name='Réinitialiser les filtres',exact=True).click()
+  await page.evaluate("toggleCommonFilters(view,true)");await page.get_by_role('button',name='Réinitialiser les filtres',exact=True).click();await page.locator('#main-search').fill('')
   assert await page.evaluate('filtered().length')==3283
   await page.locator('#main-search').fill('mosaique')
   assert await page.evaluate('filtered().length')>0
   assert await page.evaluate("filtered().every(p=>norm(p.name).includes('mosaique'))")
-  await page.get_by_role('button',name='Réinitialiser les filtres',exact=True).click()
+  await page.evaluate("toggleCommonFilters(view,true)");await page.get_by_role('button',name='Réinitialiser les filtres',exact=True).click();await page.locator('#main-search').fill('')
   # Public links are empty at migration, strictly HTTP(S), safely rendered and persisted.
   assert await page.evaluate("state.products.every(p=>p.url==='')")
   await page.evaluate("editProduct('P-5')")

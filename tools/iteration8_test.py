@@ -48,11 +48,11 @@ async def main():
   # Main list pagination: sizes, filters and sort remain functional without changing records.
   await page.evaluate("go('products')");assert await page.locator('table[data-table=products] tbody tr').count()==40
   await page.get_by_label('Lignes par page',exact=True).select_option('20');assert await page.locator('table[data-table=products] tbody tr').count()==20
-  await page.locator('table[data-table=products]').get_by_role('button',name='Prix HT',exact=False).click();active=await page.evaluate('JSON.stringify(tableSorts.products)');await page.get_by_role('button',name='→',exact=True).click();assert await page.evaluate('JSON.stringify(tableSorts.products)')==active
+  await page.locator('table[data-table=products]').locator('button[data-sort-key=price]').click();active=await page.evaluate('JSON.stringify(tableSorts.products)');await page.get_by_role('button',name='→',exact=True).click();assert await page.evaluate('JSON.stringify(tableSorts.products)')==active
   await page.get_by_label('Lignes par page',exact=True).select_option('100');assert await page.locator('table[data-table=products] tbody tr').count()==100;assert await page.evaluate('page')==0
-  assert await page.locator('.quick-filters #facet-category').count()==1 and await page.locator('.quick-filters #facet-color').count()==1
-  await page.evaluate("go('clients')");assert await page.locator('.quick-filters [data-filter-key=type]').count()==1;assert await page.locator('.quick-filters #facet-cities').count()==1
-  await page.locator('[data-filter-key=type]').select_option('Professionnel');assert await page.evaluate("filtered().every(c=>c.type==='Professionnel')");await page.get_by_role('button',name='Réinitialiser les filtres',exact=True).click()
+  assert await page.locator('#advanced-filters #facet-category').count()==1 and await page.locator('#advanced-filters #facet-color').count()==1
+  await page.evaluate("go('clients')");assert await page.locator('#advanced-filters [data-fkey=type]').count()==1;assert await page.locator('#advanced-filters #facet-cities').count()==1
+  await page.evaluate("toggleCommonFilters('clients',true)");await page.locator('#advanced-filters [data-fkey=type] input[value=Professionnel]').check();assert await page.evaluate("filtered().every(c=>c.type==='Professionnel')");await page.get_by_role('button',name='Réinitialiser les filtres',exact=True).click()
   # Universal keyboard behavior and status badges in suggestions/full results.
   await page.locator('#global').fill('démonstration');await page.locator('#global').press('Enter');assert await page.evaluate('view')=='search';assert await page.locator('table[data-table=search-opportunities] [data-stage]').count()>0
   await page.locator('#global').fill('CLI-000001');await page.locator('#global').press('ArrowDown');await page.locator('#global').press('Enter');assert await page.locator('#dialogtitle').inner_text()=='Fiche client'

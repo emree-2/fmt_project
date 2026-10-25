@@ -1,8 +1,26 @@
-# France Marbre 84 — CRM autonome, version 8
+# France Marbre 84 — CRM autonome, version 9
 
 **Seul `index.html` est nécessaire.** Copier ce fichier et l’ouvrir dans un navigateur moderne autorisant JavaScript, IndexedDB et l’impression. Aucun serveur, compilation, installation, API ou bibliothèque distante n’est requis par l’application. Les fichiers de documentation et les outils de recette sont facultatifs.
 
 Le catalogue initial de 3 283 lignes reste intégré au HTML. Les modifications du catalogue et de l’activité sont stockées dans IndexedDB. Faire régulièrement **Paramètres → Exporter JSON** ; déplacer le HTML ne transfère pas automatiquement les données du navigateur.
+
+## Nouveautés de la version 9
+
+- Avatar décoratif supprimé de l’en-tête ; recherche universelle élargie.
+- Tri et filtrage distincts dans les en-têtes des tableaux de consultation : recherche textuelle, cases multiples, périodes et plages numériques selon le champ.
+- **Filtres** regroupe les critères structurés de chaque liste. Les anciennes zones de filtres rapides ont disparu.
+- Un état commun alimente le panneau et les menus de colonnes : modifier une valeur dans l’un actualise l’autre.
+- **Réinitialiser les filtres** et **Fermer** sont dans le panneau. Réinitialiser conserve la recherche textuelle et les autres modules.
+- Le slider de prix du catalogue reste disponible et partage ses bornes avec le menu Prix HT. Le filtre Unité reste absent.
+- Les lignes en cours de saisie et les tableaux documentaires ne reçoivent aucun filtre.
+
+Les filtres portent sur l’ensemble des résultats avant tri et pagination. Ils restent actifs lors des tris, changements de page, fermetures de panneau et passages tableau/Kanban. Les critères sont des préférences d’affichage en mémoire, sans modification des sauvegardes métier. Le schéma de contenu reste **7**, sans migration.
+
+Pour une colonne regroupant plusieurs informations, le menu présente les critères correspondants : Ville/Code postal pour Adresse, nom/famille pour Désignation, format/couleur pour le catalogue. Les coordonnées client se filtrent comme du texte. Le filtre de date client conserve son choix création/modification : un menu de colonne datée sélectionne le type de date correspondant.
+
+La recherche globale dispose d’un panneau unique regroupant les critères par catégorie de résultats ; les détails KPI partagent le panneau de la page avec la période des indicateurs. Le journal et l’historique des règlements disposent du même composant, dans leur fiche.
+
+Voir [le fonctionnement des filtres V9](docs/CONCEPTION-V9.md) et [la validation V9](docs/VALIDATION-V9.md).
 
 ## Nouveautés de la version 8
 
@@ -87,6 +105,6 @@ L’export HTML avec logo ne contient pas l’activité ni le catalogue modifié
 
 ## Validation et limites
 
-Voir [la recette V8](docs/VALIDATION-V8.md). `python tools/smoke_test.py` exécute les scénarios de développement avec Playwright et un serveur statique local de recette ; aucun de ces outils n’est nécessaire à l’utilisation du CRM.
+Voir [la recette V9](docs/VALIDATION-V9.md). `python tools/smoke_test.py` exécute les scénarios de développement avec Playwright et un serveur statique local de recette ; aucun de ces outils n’est nécessaire à l’utilisation du CRM.
 
 La politique du Chromium cloud bloque `file://` ; l’ouverture directe et le stockage associé restent à vérifier dans le navigateur cible. Les contrôles fonctionnels ont utilisé une origine locale temporaire et des interactions réseau coupé. Le document imprimable ne constitue pas à lui seul une certification de conformité légale ou de facturation électronique. Les mentions applicables doivent être vérifiées avant diffusion.

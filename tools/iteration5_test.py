@@ -20,7 +20,7 @@ async def main():
   await pg.get_by_role('button',name='Enregistrer',exact=True).click();await pg.wait_for_function('state.clients.length===1');cid=await pg.evaluate('state.clients[0].id')
   assert not await pg.locator('#list th').get_by_text('Création',exact=True).count()
   assert await pg.locator('.badge.personal').count()==1
-  await pg.locator('#toggle-filters').click();assert await pg.locator('#advanced-filters fieldset').count()==1
+  await pg.locator('#toggle-filters').click();assert await pg.locator('#advanced-filters .single-period').count()==1
   assert not await pg.locator('[data-filter-key=address]').count()
   await pg.locator('[data-filter-key=dateFrom]').fill('2020-01-01');await pg.locator('[data-filter-key=dateTo]').fill('2030-12-31');await pg.locator('[data-filter-key=dateType]').select_option('updatedAt');assert await pg.locator('[data-filter-key=dateFrom]').input_value()=='2020-01-01'
   await pg.evaluate("go('settings');openSettingsCategory('data')")
@@ -96,9 +96,9 @@ async def main():
   await pg.evaluate("go('settings');openSettingsCategory('data')");await pg.evaluate("openSettingsCategory('catalog')");await pg.locator('#unit-form [name=unit]').fill('Boîte');await pg.locator('#unit-form button').click();await pg.wait_for_function("state.settings.allowedUnits.includes('Boîte')");await pg.evaluate('editProduct()');assert await pg.locator('select[name=unit] option[value="Boîte"]').count()==1;await pg.evaluate('closeDialog()')
   # Integrated quote/invoice filters and CSV exports remain available.
   await pg.evaluate("closeDialog();go('pipeline');commercialTab='devis';pipelinePage();window.csvs=[];download=(text,name,type)=>{csvs.push({text,name,type})}")
-  await pg.locator('[aria-label="Statut du devis"]').select_option('Accepté');assert await pg.locator('table[data-table=quotes] tbody tr').count()==1
+  await pg.locator('[data-column-filter-table=quotes][data-column-filter-key=status]').click();await pg.locator('#column-filter-menu input[value=Accepté]').check();await pg.keyboard.press('Escape');assert await pg.locator('table[data-table=quotes] tbody tr').count()==1
   await pg.get_by_role('button',name='Exporter les résultats CSV',exact=True).click();assert await pg.evaluate('csvs.at(-1).text.includes(state.quotes[1].number)')
-  await pg.evaluate("go('sales')");await pg.locator('[data-status-kind=payments] summary').click();await pg.locator('[data-status-index="2"]').check();await pg.get_by_role('button',name='Exporter les résultats CSV',exact=True).click();assert '2400' in await pg.evaluate('csvs.at(-1).text')
+  await pg.evaluate("go('sales')");await pg.locator('[data-column-filter-table=billing][data-column-filter-key=status]').click();await pg.locator('#column-filter-menu input[value=paid]').check();await pg.keyboard.press('Escape');await pg.get_by_role('button',name='Exporter les résultats CSV',exact=True).click();assert '2400' in await pg.evaluate('csvs.at(-1).text')
   await pg.evaluate("go('settings');openSettingsCategory('data')")
   # Model validation, demo lifecycle, backup restoration and reload.
   assert await pg.evaluate('validateImport(state).schemaVersion')==7

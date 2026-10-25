@@ -71,8 +71,8 @@ async def main():
   assert await pg.locator(f'[data-interaction-id="{mrid}"] td').nth(2).inner_text()!=await pg.locator(f'[data-interaction-id="{mrid}"] td').nth(3).inner_text()
   await pg.locator(f'[data-interaction-id="{mrid}"]').get_by_role('button',name='Voir le détail',exact=True).click();await pg.locator('[name=report]').fill('Client joint, dimensions validées');await pg.locator('#reminder-report button').click();await pg.wait_for_function("state.reminders.find(r=>r.id==='"+mrid+"').report.length>0")
   await pg.get_by_role('button',name='+ Enregistrer un échange',exact=True).click();assert await pg.locator('[name=occurredAt]').input_value();await pg.locator('[name=channel]').select_option('Téléphone');await pg.locator('[name=note]').fill('Client hésite entre deux pierres');await pg.locator('#editform').get_by_role('button',name='Enregistrer',exact=True).click();await pg.wait_for_function('state.interactions.length===1');assert await pg.locator('#journal .badge.quick').count()==2
-  await pg.locator('[data-journal-filter=type] summary').click();await pg.locator('[data-journal-filter=type] input[value=quick]').check();assert await pg.locator('#journal-rows tbody tr').count()==1;await pg.locator('[data-journal-filter=type]').get_by_role('button',name='Effacer',exact=True).click()
-  await pg.locator('#journal').screenshot(path='/tmp/fm84-v6-journal.png')
+  await pg.locator('[data-column-filter-table=journal][data-column-filter-key=type]').click();await pg.locator('#column-filter-menu input[value=quick]').check();assert await pg.locator('#journal-rows tbody tr').count()==1;await pg.locator('#column-filter-menu').get_by_role('button',name='Effacer cette colonne',exact=True).click()
+  await pg.keyboard.press('Escape');await pg.locator('#journal').screenshot(path='/tmp/fm84-v6-journal.png')
   await pg.evaluate("closeDialog();go('pipeline');commercialTab='relances';pipelinePage()");assert await pg.locator('table[data-table=follow-ups] tbody tr').count()==1
   # Technical histories in every relevant module are absent or closed by default.
   await pg.evaluate('async()=>{await setTraceability(true)}');await pg.evaluate(f"opportunityDetail('{oid}')");assert not await pg.locator('.technical-history').evaluate('e=>e.open');await pg.locator('.technical-history summary').click();assert await pg.locator('.technical-log').is_visible();assert await pg.locator('#journal-rows').is_visible()
@@ -82,15 +82,15 @@ async def main():
   # Multiselection stays active across table/Kanban and combines with search; payments use same component.
   await pg.evaluate("closeDialog();go('settings');openSettingsCategory('data');generateDemo()");await pg.wait_for_function('state.clients.length===41')
   await pg.evaluate("go('pipeline');commercialTab='dossiers';kanban=false;pipelinePage()")
-  await pg.locator('[data-status-kind=stages] summary').click();await pg.locator('[data-status-index="0"]').check();await pg.locator('[data-status-index="1"]').check()
+  await pg.locator('[data-column-filter-table=opportunities][data-column-filter-key=stage]').click();await pg.locator('#column-filter-menu input[value="Nouveau contact"]').check();await pg.locator('#column-filter-menu input[value="Besoin identifié"]').check();await pg.keyboard.press('Escape')
   count=await pg.evaluate('state.opportunities.filter(o=>commercialStages.includes(o.stage)).length');assert await pg.locator('table[data-table=opportunities] tbody tr').count()==count
   await pg.get_by_role('button',name='Vue Kanban',exact=True).click();assert await pg.locator('.kanban .column').count()==2;assert await pg.evaluate('commercialStages.length')==2
   await pg.get_by_role('button',name='Vue tableau',exact=True).click();await pg.get_by_label('Rechercher un dossier',exact=True).fill('Saisie');assert await pg.locator('table[data-table=opportunities] tbody tr').count()==1
-  await pg.locator('[data-status-kind=stages] summary').click();await pg.locator('[data-select-all]').check();await pg.get_by_role('button',name='Effacer la sélection',exact=True).click();assert await pg.evaluate('commercialStages.length')==0
-  await pg.evaluate("go('sales')");await pg.locator('[data-status-kind=payments] summary').click();await pg.locator('[data-status-index="0"]').check();await pg.locator('[data-status-index="1"]').check()
+  await pg.locator('[data-column-filter-table=opportunities][data-column-filter-key=stage]').click();await pg.get_by_role('button',name='Effacer cette colonne',exact=True).click();await pg.keyboard.press('Escape');assert await pg.evaluate('commercialStages.length')==0
+  await pg.evaluate("go('sales')");await pg.locator('[data-column-filter-table=billing][data-column-filter-key=status]').click();await pg.locator('#column-filter-menu input[value=unpaid]').check();await pg.locator('#column-filter-menu input[value=deposit]').check()
   expected_count=await pg.evaluate("state.sales.filter(b=>['unpaid','deposit'].includes(paymentSummary(b).key)).length");assert await pg.locator('table[data-table=billing] tbody tr').count()==expected_count
   assert str(expected_count)+' résultat' in await pg.locator('#billing-results .pagination').inner_text()
-  await pg.locator('[data-status-kind=payments] summary').click();await pg.locator('table[data-table=billing]').get_by_role('button',name='Total TTC',exact=False).click();assert await pg.locator('table[data-table=billing] tbody tr').count()==expected_count
+  await pg.keyboard.press('Escape');await pg.locator('table[data-table=billing]').locator('button[data-sort-key=total]').click();assert await pg.locator('table[data-table=billing] tbody tr').count()==expected_count
   await pg.evaluate("go('products');productPanelOpen=true;productsPage()");assert await pg.locator('#facet-unit').count()==0;assert await pg.locator('table[data-table=products]').get_by_role('button',name='Unité',exact=False).count()==1
   assert await pg.evaluate('()=>{const s=structuredClone(state);applyDemoRemoval(s);validateImport(s);return !s.clients.some(c=>c.isDemo)}')
   assert await pg.evaluate('validateImport(state).schemaVersion')==7
