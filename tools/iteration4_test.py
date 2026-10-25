@@ -36,7 +36,7 @@ async def main():
   await page.evaluate("document.querySelector('#print-root').innerHTML='CLIENT_PRIVATE_SENTINEL';document.querySelector('#dialogtitle').textContent='CLIENT_PRIVATE_SENTINEL';exportHTMLWithLogo()")
   html=await page.evaluate('captured.at(-1).text');assert 'CLIENT_PRIVATE_SENTINEL' not in html and 'Administration privée' not in html;assert base64.b64encode(out.getvalue()).decode() in html
   isolated=await browser.new_context();await isolated.route('http://single-file.test/**',lambda r:r.fulfill(status=200,content_type='text/html',body=html));one=await isolated.new_page();one.on('pageerror',lambda e:errors.append(str(e)));await one.goto('http://single-file.test/index.html');await one.get_by_role('heading',name='Analyses & KPI',exact=True).wait_for();assert await one.evaluate('state.clients.length')==0;assert await one.locator('#brand img').evaluate('(i)=>i.naturalWidth')==16;await isolated.close()
-  assert await page.evaluate('validateImport(state).schemaVersion')==6
+  assert await page.evaluate('validateImport(state).schemaVersion')==7
   await context.set_offline(False);await page.reload();await page.get_by_role('heading',name='Analyses & KPI',exact=True).wait_for();assert await page.evaluate('state.products.at(-1).createdAt')==created
   direct=await context.new_page()
   try:

@@ -50,8 +50,8 @@ async def main():
   activity=await pg.evaluate('state.opportunities[0].lastBusinessActivityAt');rid=await pg.evaluate("state.reminders.find(r=>r.reason==='inactivity').id")
   await pg.evaluate('async()=>{await queueReminderCheck();await queueReminderCheck();await commit(s=>event(s,"opportunity",s.opportunities[0].id,"Événement technique sans activité"));}')
   assert await pg.evaluate('state.reminders.length')==1;assert await pg.evaluate('state.opportunities[0].lastBusinessActivityAt')==activity
-  await pg.evaluate(f"opportunityDetail('{oid}')");assert await pg.locator('.technical-history').count()==0;assert await pg.locator('#journal .badge.automatic').count()==1;assert await pg.locator('#journal .badge.danger').count()==1
-  before=await pg.evaluate('state.interactions.length');await pg.get_by_role('button',name='Effectuer',exact=True).click();await pg.wait_for_function('state.reminders[0].done')
+  await pg.evaluate(f"opportunityDetail('{oid}')");assert await pg.locator('.technical-history').count()==0;assert await pg.locator('#journal .badge.automatic').count()==1;assert await pg.locator('#journal select.danger').count()==1
+  before=await pg.evaluate('state.interactions.length');await pg.locator('select.reminder-status').select_option('done');await pg.wait_for_function('state.reminders[0].done')
   assert await pg.evaluate('state.interactions.length')==before;assert await pg.evaluate('state.reminders[0].completedAt')
   assert await pg.locator(f'[data-interaction-id="{rid}"] .badge.success').inner_text()=='Effectuée';assert 'à' in await pg.locator(f'[data-interaction-id="{rid}"] td').nth(3).inner_text();assert await pg.evaluate('state.opportunities[0].lastBusinessActivityAt')!=activity
   await pg.evaluate('queueReminderCheck()');assert await pg.evaluate('state.reminders.length')==1
@@ -67,11 +67,11 @@ async def main():
   await pg.get_by_role('button',name='+ Programmer une relance',exact=True).click();await pg.locator('[name=date]').fill('2026-01-02');await pg.locator('[name=note]').fill('Rappel convenu');await pg.locator('[name=notes]').fill('Choix des dimensions');await pg.locator('#editform').get_by_role('button',name='Enregistrer',exact=True).click();await pg.wait_for_function("state.reminders.some(r=>r.note==='Rappel convenu')")
   mrid=await pg.evaluate("state.reminders.find(r=>r.note==='Rappel convenu').id");row=pg.locator(f'[data-interaction-id="{mrid}"]');assert await row.locator('.badge.manual').count()==1
   await row.get_by_role('button',name='Modifier',exact=True).click();await pg.locator('[name=note]').fill('Rappel modifié');await pg.locator('#editform').get_by_role('button',name='Enregistrer',exact=True).click();await pg.wait_for_function("state.reminders.some(r=>r.note==='Rappel modifié')")
-  await pg.locator(f'[data-interaction-id="{mrid}"]').get_by_role('button',name='Effectuer',exact=True).click();await pg.wait_for_function("state.reminders.find(r=>r.id==='"+mrid+"').done")
+  await pg.locator(f'[data-interaction-id="{mrid}"] select.reminder-status').select_option('done');await pg.wait_for_function("state.reminders.find(r=>r.id==='"+mrid+"').done")
   assert await pg.locator(f'[data-interaction-id="{mrid}"] td').nth(2).inner_text()!=await pg.locator(f'[data-interaction-id="{mrid}"] td').nth(3).inner_text()
-  await pg.locator(f'[data-interaction-id="{mrid}"]').get_by_role('button',name='Voir',exact=True).click();await pg.locator('[name=report]').fill('Client joint, dimensions validées');await pg.locator('#reminder-report button').click();await pg.wait_for_function("state.reminders.find(r=>r.id==='"+mrid+"').report.length>0")
+  await pg.locator(f'[data-interaction-id="{mrid}"]').get_by_role('button',name='Voir le détail',exact=True).click();await pg.locator('[name=report]').fill('Client joint, dimensions validées');await pg.locator('#reminder-report button').click();await pg.wait_for_function("state.reminders.find(r=>r.id==='"+mrid+"').report.length>0")
   await pg.get_by_role('button',name='+ Enregistrer un échange',exact=True).click();assert await pg.locator('[name=occurredAt]').input_value();await pg.locator('[name=channel]').select_option('Téléphone');await pg.locator('[name=note]').fill('Client hésite entre deux pierres');await pg.locator('#editform').get_by_role('button',name='Enregistrer',exact=True).click();await pg.wait_for_function('state.interactions.length===1');assert await pg.locator('#journal .badge.quick').count()==2
-  await pg.get_by_label('Type d’interaction',exact=True).select_option('quick');assert await pg.locator('#journal-rows tbody tr').count()==1;await pg.get_by_label('Type d’interaction',exact=True).select_option('')
+  await pg.locator('[data-journal-filter=type] summary').click();await pg.locator('[data-journal-filter=type] input[value=quick]').check();assert await pg.locator('#journal-rows tbody tr').count()==1;await pg.locator('[data-journal-filter=type]').get_by_role('button',name='Effacer',exact=True).click()
   await pg.locator('#journal').screenshot(path='/tmp/fm84-v6-journal.png')
   await pg.evaluate("closeDialog();go('pipeline');commercialTab='relances';pipelinePage()");assert await pg.locator('table[data-table=follow-ups] tbody tr').count()==1
   # Technical histories in every relevant module are absent or closed by default.
@@ -93,7 +93,7 @@ async def main():
   await pg.locator('table[data-table=billing]').get_by_role('button',name='Total TTC',exact=False).click();assert await pg.locator('table[data-table=billing] tbody tr').count()==expected_count
   await pg.evaluate("go('products');productPanelOpen=true;productsPage()");assert await pg.locator('#facet-unit').count()==0;assert await pg.locator('table[data-table=products]').get_by_role('button',name='Unité',exact=False).count()==1
   assert await pg.evaluate('()=>{const s=structuredClone(state);applyDemoRemoval(s);validateImport(s);return !s.clients.some(c=>c.isDemo)}')
-  assert await pg.evaluate('validateImport(state).schemaVersion')==6
+  assert await pg.evaluate('validateImport(state).schemaVersion')==7
   assert not errors,errors
   await ctx.set_offline(False);await pg.reload();await pg.get_by_role('heading',name='Analyses & KPI',exact=True).wait_for();assert await pg.evaluate('state.clients.length')==41
   await ctx.close()
@@ -104,7 +104,7 @@ async def main():
   await pg.evaluate("async()=>{await commit(s=>{populateDemo(s);const o=s.opportunities.find(isOpen);s.reminders.push({id:'MIG-R',clientId:o.clientId,opportunityId:o.id,date:'2026-01-01',note:'Rappel historique',done:true,cancelled:false,completedAt:'2026-01-02T12:00:00Z',createdAt:'2026-01-01T12:00:00Z'});s.interactions.push({id:'MIG-I',clientId:o.clientId,opportunityId:o.id,note:'Relance effectuée : Rappel historique',createdAt:'2026-01-02T12:00:00Z'});});}")
   old=await pg.evaluate('JSON.parse(JSON.stringify(state))');assert old['schemaVersion']==5
   await pg.goto('http://127.0.0.1:8765/index.html');await pg.get_by_role('heading',name='Analyses & KPI',exact=True).wait_for()
-  new=await pg.evaluate('JSON.parse(JSON.stringify(state))');assert new['schemaVersion']==6
+  new=await pg.evaluate('JSON.parse(JSON.stringify(state))');assert new['schemaVersion']==7
   for k in ['clients','products','opportunities','opportunityLines','quotes','quoteLines','sales','saleLines','confirmedSales','payments','reminders','interactions','events']:
    assert [x['id'] for x in old[k]]==[x['id'] for x in new[k]],k
   assert [x.get('contentSnapshot') for x in old['quotes']]==[x.get('contentSnapshot') for x in new['quotes']]
@@ -112,7 +112,7 @@ async def main():
   assert next(i for i in new['interactions'] if i['id']=='MIG-I')['reminderId']=='MIG-R'
   oid=next(r for r in new['reminders'] if r['id']=='MIG-R')['opportunityId'];await pg.evaluate(f"opportunityDetail('{oid}')");assert await pg.locator('[data-interaction-id=MIG-R]').count()==1;assert await pg.locator('[data-interaction-id=MIG-I]').count()==0
   assert 'Rappel historique' in await pg.locator('[data-interaction-id=MIG-R]').inner_text()
-  assert await pg.evaluate('validateImport(state).schemaVersion')==6
+  assert await pg.evaluate('validateImport(state).schemaVersion')==7
   # Restore JSON through actual file input and check business activity remains the backed-up value.
   await pg.evaluate("closeDialog();go('settings')");pg.on('dialog',lambda d:d.accept());await pg.locator('#restore').set_input_files({'name':'v6.json','mimeType':'application/json','buffer':json.dumps(new).encode()});await pg.wait_for_function("document.getElementById('toast').textContent==='Sauvegarde restaurée.'")
   assert await pg.evaluate('state.opportunities[0].lastBusinessActivityAt')==new['opportunities'][0]['lastBusinessActivityAt']

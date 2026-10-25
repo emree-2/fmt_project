@@ -1,8 +1,17 @@
-# France Marbre 84 — CRM autonome, version 6
+# France Marbre 84 — CRM autonome, version 7
 
 **Seul `index.html` est nécessaire.** Copier ce fichier et l’ouvrir dans un navigateur moderne autorisant JavaScript, IndexedDB et l’impression. Aucun serveur, compilation, installation, API ou bibliothèque distante n’est requis par l’application. Les fichiers de documentation et les outils de recette sont facultatifs.
 
 Le catalogue initial de 3 283 lignes reste intégré au HTML. Les modifications du catalogue et de l’activité sont stockées dans IndexedDB. Faire régulièrement **Paramètres → Exporter JSON** ; déplacer le HTML ne transfère pas automatiquement les données du navigateur.
+
+## Nouveautés de la version 7
+
+- Accès direct **Voir la facturation** dans les actions du dossier et sur sa carte client, sans créer de document.
+- Un seul bouton **+ Enregistrer un règlement** : acompte pour atteindre 50 %, solde, règlement total net des sommes déjà perçues ou montant personnalisé. Récapitulatif avant/après, corrections et contrôle des anciens paiements conservés.
+- Statut des relances modifiable directement dans le journal ; réalisation datée, aucune entrée dupliquée. Tris et filtres multisélection dans les en-têtes Type et Statut, avec ordre prioritaire conservé.
+- Échanges rapides modifiables sur le même enregistrement. Dossiers confirmés, perdus ou à vérifier : historique commercial consultable, sans nouveaux échanges/relances ni modification d’échange.
+- Fiche client avec cartes de projets et produits d’intérêt, navigation par identifiants stables, produits inactifs consultables et ajout d’intérêt sans doublon.
+- Parcours commercial et historique des échanges client conditionnés à la traçabilité, repliés par défaut. Les devis et facturations se consultent par les dossiers ; leurs blocs redondants ont été retirés des fiches client/dossier.
 
 ## Nouveautés de la version 6
 
@@ -25,7 +34,7 @@ Les relances automatiques sont **désactivées initialement**. Leur désactivati
 6. En cas de négociation, créer une nouvelle version ; l’ancienne reste figée et consultable.
 7. **Confirmer la vente** en choisissant la proposition retenue. Les lignes sont figées et un seul dossier de facturation est préparé, sans créer immédiatement une facture émise ni un paiement.
 8. Dans **Facturation & paiements**, vérifier la prévisualisation puis émettre la facture. Le numéro définitif est attribué à cette étape.
-9. Enregistrer l’acompte et le solde avec les montants et dates réellement reçus. Une correction conserve l’ancien enregistrement et ajuste les totaux.
+9. Utiliser **+ Enregistrer un règlement** pour saisir l’acompte, le solde ou un autre montant avec la date réellement reçue. Une correction conserve l’ancien enregistrement et ajuste les totaux.
 
 Les devis, relances, interactions, facturations et paiements sont accessibles depuis les fiches client et dossier. Les devis et factures possèdent une vue A4 : **Imprimer / enregistrer en PDF** ouvre le mécanisme natif du navigateur ; l’utilisateur doit sélectionner l’enregistrement PDF dans sa fenêtre d’impression.
 
@@ -45,7 +54,7 @@ Les filtres clients utilisent un seul composant de période (création ou derni�
 
 ## Modèle, migrations et KPI
 
-Schéma de contenu **6**, sans changement du nom IndexedDB ni réinitialisation. Les sauvegardes V1 à V5 restent lisibles. Voir [les décisions V6](docs/CONCEPTION-V6.md) et [le modèle commercial V5](docs/CONCEPTION-V5.md).
+Schéma de contenu **7**, sans changement du nom IndexedDB ni réinitialisation. Les sauvegardes V1 à V6 restent lisibles. Voir [les décisions V7](docs/CONCEPTION-V7.md), [les décisions V6](docs/CONCEPTION-V6.md) et [le modèle commercial V5](docs/CONCEPTION-V5.md).
 
 Les chiffres distinguent les devis, les ventes confirmées, les factures émises et les règlements effectifs. Les corrections annulées ne sont pas encaissées deux fois. Le taux d’acceptation utilise les devis courants, hors versions remplacées ; le nombre de versions émises est affiché séparément.
 
@@ -64,6 +73,6 @@ L’export HTML avec logo ne contient pas l’activité ni le catalogue modifié
 
 ## Validation et limites
 
-Voir [la recette V6](docs/VALIDATION-V6.md). `python tools/smoke_test.py` exécute les scénarios de développement avec Playwright et un serveur statique local de recette ; aucun de ces outils n’est nécessaire à l’utilisation du CRM.
+Voir [la recette V7](docs/VALIDATION-V7.md). `python tools/smoke_test.py` exécute les scénarios de développement avec Playwright et un serveur statique local de recette ; aucun de ces outils n’est nécessaire à l’utilisation du CRM.
 
 La politique du Chromium cloud bloque `file://` ; l’ouverture directe et le stockage associé restent à vérifier dans le navigateur cible. Les contrôles fonctionnels ont utilisé une origine locale temporaire et des interactions réseau coupé. Le document imprimable ne constitue pas à lui seul une certification de conformité légale ou de facturation électronique. Les mentions applicables doivent être vérifiées avant diffusion.
